@@ -26,6 +26,7 @@ bool lightDetectorEnabled = true;
 unsigned long lightOnDuration = 10000;
 int darkThreshold = 800;
 int semiThreshold = 2000;
+bool buzzerSoundEnabled = true;
 
 unsigned long motionTriggerTime = 0;
 bool motionActive = false;
@@ -58,7 +59,9 @@ void sendSystemState() {
   SerialBT.print(",TD=");
   SerialBT.print(darkThreshold);
   SerialBT.print(",TS=");
-  SerialBT.println(semiThreshold);
+  SerialBT.print(semiThreshold);
+  SerialBT.print(",B=");
+  SerialBT.println(buzzerSoundEnabled ? 1 : 0);
 }
 
 void runAutoLEDs() {
@@ -167,7 +170,7 @@ void loop() {
       lastPirState = currentPirState;
       SerialBT.print("PIR:");
       SerialBT.println(lastPirState);
-      if (!isArmed) {
+      if (!isArmed && buzzerSoundEnabled) {
         if (currentMode == 0 || (currentMode == 1 && motionDetectorEnabled)) {
           digitalWrite(BUZZER_PIN, HIGH);
           delay(100);
@@ -242,6 +245,9 @@ void processCommand(String cmd) {
     sendSystemState();
   } else if (cmd.startsWith("TS:")) {
     semiThreshold = cmd.substring(3).toInt();
+    sendSystemState();
+  } else if (cmd.startsWith("B:")) {
+    buzzerSoundEnabled = (cmd.substring(2).toInt() == 1);
     sendSystemState();
   } else if (cmd.startsWith("MODE:")) {
     currentMode = cmd.substring(5).toInt();

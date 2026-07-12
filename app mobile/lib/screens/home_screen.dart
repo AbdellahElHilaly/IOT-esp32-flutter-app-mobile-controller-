@@ -27,6 +27,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   int _lightOnDuration = 10;
   int _ldrDarkThreshold = 800;
   int _ldrSemiThreshold = 2000;
+  bool _buzzerSoundEnabled = true;
 
   BluetoothConnection? _connection;
   bool _isConnected = false;
@@ -187,6 +188,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       int duration = _lightOnDuration;
       int dark = _ldrDarkThreshold;
       int semi = _ldrSemiThreshold;
+      bool buzzer = _buzzerSoundEnabled;
       for (var part in parts) {
         List<String> kv = part.split('=');
         if (kv.length == 2) {
@@ -204,6 +206,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             dark = int.tryParse(val) ?? dark;
           } else if (key == 'TS') {
             semi = int.tryParse(val) ?? semi;
+          } else if (key == 'B') {
+            buzzer = val == '1';
           }
         }
       }
@@ -214,6 +218,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         _lightOnDuration = duration;
         _ldrDarkThreshold = dark;
         _ldrSemiThreshold = semi;
+        _buzzerSoundEnabled = buzzer;
       });
     } catch (_) {}
   }
@@ -1250,6 +1255,13 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     );
   }
 
+  void _toggleBuzzerSound() {
+    setState(() {
+      _buzzerSoundEnabled = !_buzzerSoundEnabled;
+    });
+    _sendCommand('B:${_buzzerSoundEnabled ? 1 : 0}');
+  }
+
   Widget _buildSystemOverview(TextTheme textTheme) {
     return Container(
       padding: const EdgeInsets.all(8),
@@ -1271,13 +1283,25 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               _isMotionDetected ? const Color(0xFFEF4444) : LuminaTheme.outlineColor,
             ),
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: 6),
           Expanded(
             child: _buildTelemetryTile(
               Icons.wb_sunny_outlined,
               'Light Level',
               '$_ldrValue Lux',
               LuminaTheme.primaryColor,
+            ),
+          ),
+          const SizedBox(width: 6),
+          Expanded(
+            child: GestureDetector(
+              onTap: _toggleBuzzerSound,
+              child: _buildTelemetryTile(
+                _buzzerSoundEnabled ? Icons.volume_up : Icons.volume_off,
+                'Buzzer Sound',
+                _buzzerSoundEnabled ? 'Active' : 'Muted',
+                _buzzerSoundEnabled ? const Color(0xFF4AE183) : Colors.grey,
+              ),
             ),
           ),
         ],
