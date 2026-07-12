@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
+<title>LUMINA Smart Home</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@600&amp;family=Manrope:wght@400;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "tertiary-fixed": "#c8e6ff",
+                    "inverse-on-surface": "#ecf2f4",
+                    "surface-dim": "#d5dbde",
+                    "on-tertiary-fixed-variant": "#004c6d",
+                    "on-secondary-fixed": "#00210c",
+                    "primary-container": "#00b4d8",
+                    "secondary-fixed-dim": "#4ae183",
+                    "on-tertiary-container": "#003f5c",
+                    "on-primary-fixed-variant": "#004e5f",
+                    "surface-tint": "#00677d",
+                    "outline": "#6d797e",
+                    "primary-fixed": "#b3ebff",
+                    "on-surface": "#171c1f",
+                    "tertiary-fixed-dim": "#87ceff",
+                    "primary-fixed-dim": "#4cd6fb",
+                    "on-secondary-fixed-variant": "#005228",
+                    "on-tertiary": "#ffffff",
+                    "secondary-fixed": "#6bfe9c",
+                    "on-primary-container": "#00414f",
+                    "surface-bright": "#f5fafd",
+                    "primary": "#00677d",
+                    "background": "#f5fafd",
+                    "surface-container-highest": "#dee3e6",
+                    "on-surface-variant": "#3d494d",
+                    "error-container": "#ffdad6",
+                    "on-secondary-container": "#00743a",
+                    "surface-container-lowest": "#ffffff",
+                    "error": "#ba1a1a",
+                    "on-error-container": "#93000a",
+                    "on-tertiary-fixed": "#001e2e",
+                    "surface-container-low": "#eff4f7",
+                    "on-primary-fixed": "#001f27",
+                    "surface": "#f5fafd",
+                    "on-background": "#171c1f",
+                    "secondary-container": "#6bfe9c",
+                    "on-primary": "#ffffff",
+                    "secondary": "#006d37",
+                    "outline-variant": "#bcc9ce",
+                    "surface-variant": "#dee3e6",
+                    "inverse-surface": "#2b3134",
+                    "surface-container": "#e9eff1",
+                    "surface-container-high": "#e3e9ec",
+                    "tertiary": "#006590",
+                    "on-error": "#ffffff",
+                    "on-secondary": "#ffffff",
+                    "inverse-primary": "#4cd6fb",
+                    "tertiary-container": "#55aee4"
+            },
+            "borderRadius": {
+                    "DEFAULT": "1rem",
+                    "lg": "2rem",
+                    "xl": "3rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "container-padding-mobile": "20px",
+                    "base": "8px",
+                    "gutter": "16px",
+                    "container-padding-desktop": "40px",
+                    "stack-gap": "24px"
+            },
+            "fontFamily": {
+                    "display-lg": ["Manrope"],
+                    "body-lg": ["Manrope"],
+                    "title-md": ["Manrope"],
+                    "body-md": ["Manrope"],
+                    "headline-lg-mobile": ["Manrope"],
+                    "headline-lg": ["Manrope"],
+                    "label-sm": ["Hanken Grotesk"]
+            },
+            "fontSize": {
+                    "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "title-md": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                    "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .glass-card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .active-glow-orange { box-shadow: 0 0 20px rgba(255, 165, 0, 0.4); }
+        .active-glow-green { box-shadow: 0 0 20px rgba(74, 225, 131, 0.4); }
+        .active-glow-red { box-shadow: 0 0 20px rgba(239, 68, 68, 0.4); }
+        .active-glow-blue { box-shadow: 0 0 20px rgba(0, 180, 216, 0.4); }
+        .active-glow-yellow { box-shadow: 0 0 20px rgba(255, 215, 0, 0.4); }
+        .active-glow-white { box-shadow: 0 0 20px rgba(255, 255, 255, 0.8); }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 24px;
+            width: 24px;
+            border-radius: 50%;
+            background: white;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            cursor: pointer;
+            margin-top: -8px;
+        }
+        input[type="range"]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 8px;
+            background: #E2E8F0;
+            border-radius: 4px;
+        }
+
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body-md min-h-screen pb-32">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-surface/80 dark:bg-surface-container-low/80 backdrop-blur-xl shadow-[0px_10px_30px_rgba(0,180,216,0.08)]">
+<div class="flex justify-between items-center px-container-padding-mobile py-4 w-full">
+<div class="active:scale-95 transition-transform duration-200 hover:opacity-80 transition-opacity text-primary dark:text-primary-fixed-dim">
+<span class="material-symbols-outlined text-[28px]">settings_remote</span>
+</div>
+<h1 class="font-display-lg text-display-lg font-bold tracking-tighter text-primary dark:text-primary-fixed-dim">LUMINA</h1>
+<div class="w-10 h-10 rounded-full overflow-hidden border-2 border-primary-container active:scale-95 transition-transform duration-200">
+<img class="w-full h-full object-cover" data-alt="A professional, high-end close-up studio portrait of a modern homeowner with a warm and friendly expression. The lighting is soft and cinematic, with a gentle lavender and teal rim light that reflects the smart home's tech-forward aesthetic. The background is a clean, out-of-focus minimalist interior with soft glassmorphism textures. The overall mood is sophisticated and approachable." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBBmy7UM93xPOmljkDD2SeRp8F72xflVnAGcefNij9yx079SlYoArvQcBGh74uumcZeGu0HdkCfAh2jdlhodmL9FaTeDd7m_Q-3ATr-Me5JSMnudlf3GngbCrVEE34UUkka2h6GVcyB1hyOcBUcL7nTphNV_VoiW1aE2gwjrz_ptluIgNsihvR4PgTqRJeqGGnR9KQC8yvGX3ww-e8TV7OAwvDXa4BM5Q533O0LKDIHxrA13lms3DG1jA"/>
+</div>
+</div>
+</header>
+<main class="pt-24 px-container-padding-mobile space-y-stack-gap">
+<!-- Section 1: Dynamic Mode -->
+<section class="animate-in fade-in slide-in-from-bottom-4 duration-700" id="dynamic-mode">
+<h2 class="font-title-md text-title-md text-on-surface-variant mb-4 px-2">Dynamic Intelligence</h2>
+<div class="glass-card rounded-lg p-6 relative overflow-hidden shadow-[0px_10px_30px_rgba(0,180,216,0.08)]">
+<!-- Atmospheric Background Glow -->
+<div class="absolute -top-12 -right-12 w-32 h-32 bg-primary-container/20 rounded-full blur-3xl"></div>
+<div class="absolute -bottom-12 -left-12 w-32 h-32 bg-secondary-fixed/20 rounded-full blur-3xl"></div>
+<div class="relative z-10 flex flex-col md:flex-row gap-6">
+<!-- PIR Status -->
+<div class="flex-1 flex items-center gap-4 bg-surface-container-low/50 p-4 rounded-xl border border-white/40">
+<div class="p-3 bg-primary-container/10 rounded-full text-primary">
+<span class="material-symbols-outlined text-[32px]">sensors</span>
+</div>
+<div>
+<p class="font-label-sm text-label-sm text-on-surface-variant uppercase">PIR Motion</p>
+<p class="font-title-md text-title-md text-primary">No Motion</p>
+</div>
+</div>
+<!-- LDR Status -->
+<div class="flex-1 flex items-center gap-4 bg-surface-container-low/50 p-4 rounded-xl border border-white/40">
+<div class="p-3 bg-tertiary-container/10 rounded-full text-tertiary">
+<span class="material-symbols-outlined text-[32px]">light_mode</span>
+</div>
+<div>
+<p class="font-label-sm text-label-sm text-on-surface-variant uppercase">LDR Sensor</p>
+<p class="font-title-md text-title-md text-tertiary">420 Lux</p>
+</div>
+</div>
+</div>
+<div class="mt-6 flex justify-between items-center bg-primary text-on-primary p-4 rounded-xl shadow-lg shadow-primary-container/20 active:scale-[0.98] transition-transform">
+<span class="font-title-md text-title-md">Adaptive Lighting</span>
+<button class="w-12 h-6 bg-white/30 rounded-full relative transition-colors duration-300" id="toggle-dynamic">
+<div class="absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform duration-300 translate-x-6"></div>
+</button>
+</div>
+</div>
+</section>
+<!-- Section 2: Remote Mode -->
+<section class="animate-in fade-in slide-in-from-bottom-4 duration-700 delay-100" id="remote-mode">
+<h2 class="font-title-md text-title-md text-on-surface-variant mb-4 px-2">Manual Remote</h2>
+<div class="grid grid-cols-2 md:grid-cols-3 gap-gutter">
+<!-- Orange Tile -->
+<button class="glass-card aspect-square rounded-lg flex flex-col items-center justify-center gap-3 border border-white/40 transition-all duration-300 hover:scale-[1.02] active:scale-95 group" onclick="toggleLED(this, 'orange')">
+<div class="p-4 rounded-full bg-orange-100/50 text-orange-500 group-[.active]:bg-orange-500 group-[.active]:text-white transition-colors">
+<span class="material-symbols-outlined text-[32px]">lightbulb</span>
+</div>
+<span class="font-label-sm text-label-sm tracking-widest uppercase">Warm Sunset</span>
+</button>
+<!-- Green Tile -->
+<button class="glass-card aspect-square rounded-lg flex flex-col items-center justify-center gap-3 border border-white/40 transition-all duration-300 hover:scale-[1.02] active:scale-95 group" onclick="toggleLED(this, 'green')">
+<div class="p-4 rounded-full bg-green-100/50 text-green-500 group-[.active]:bg-green-500 group-[.active]:text-white transition-colors">
+<span class="material-symbols-outlined text-[32px]">nature</span>
+</div>
+<span class="font-label-sm text-label-sm tracking-widest uppercase">Forest</span>
+</button>
+<!-- Red Tile -->
+<button class="glass-card aspect-square rounded-lg flex flex-col items-center justify-center gap-3 border border-white/40 transition-all duration-300 hover:scale-[1.02] active:scale-95 group" onclick="toggleLED(this, 'red')">
+<div class="p-4 rounded-full bg-red-100/50 text-red-500 group-[.active]:bg-red-500 group-[.active]:text-white transition-colors">
+<span class="material-symbols-outlined text-[32px]">nightlight</span>
+</div>
+<span class="font-label-sm text-label-sm tracking-widest uppercase">Night Mode</span>
+</button>
+<!-- Blue Tile -->
+<button class="glass-card aspect-square rounded-lg flex flex-col items-center justify-center gap-3 border border-white/40 transition-all duration-300 hover:scale-[1.02] active:scale-95 group" onclick="toggleLED(this, 'blue')">
+<div class="p-4 rounded-full bg-blue-100/50 text-blue-500 group-[.active]:bg-blue-500 group-[.active]:text-white transition-colors">
+<span class="material-symbols-outlined text-[32px]">waves</span>
+</div>
+<span class="font-label-sm text-label-sm tracking-widest uppercase">Ocean</span>
+</button>
+<!-- Yellow Tile -->
+<button class="glass-card aspect-square rounded-lg flex flex-col items-center justify-center gap-3 border border-white/40 transition-all duration-300 hover:scale-[1.02] active:scale-95 group active" onclick="toggleLED(this, 'yellow')">
+<div class="p-4 rounded-full bg-yellow-100/50 text-yellow-500 group-[.active]:bg-yellow-500 group-[.active]:text-white transition-colors">
+<span class="material-symbols-outlined text-[32px]">wb_sunny</span>
+</div>
+<span class="font-label-sm text-label-sm tracking-widest uppercase">Morning</span>
+</button>
+<!-- White Tile -->
+<button class="glass-card aspect-square rounded-lg flex flex-col items-center justify-center gap-3 border border-white/40 transition-all duration-300 hover:scale-[1.02] active:scale-95 group" onclick="toggleLED(this, 'white')">
+<div class="p-4 rounded-full bg-slate-100/50 text-slate-500 group-[.active]:bg-slate-700 group-[.active]:text-white transition-colors">
+<span class="material-symbols-outlined text-[32px]">hdr_strong</span>
+</div>
+<span class="font-label-sm text-label-sm tracking-widest uppercase">Pure White</span>
+</button>
+</div>
+</section>
+<!-- Section 3: Animation Mode -->
+<section class="animate-in fade-in slide-in-from-bottom-4 duration-700 delay-200" id="animation-mode">
+<h2 class="font-title-md text-title-md text-on-surface-variant mb-4 px-2">Atmospheric Animations</h2>
+<div class="glass-card rounded-lg p-6 border border-white/40 space-y-6 shadow-[0px_10px_30px_rgba(0,180,216,0.08)]">
+<!-- Animation Selection Chips -->
+<div class="overflow-x-auto no-scrollbar -mx-6 px-6">
+<div class="flex gap-3 pb-2">
+<button class="px-6 py-2 rounded-full bg-primary text-on-primary whitespace-nowrap font-label-sm transition-all duration-300" onclick="selectChip(this)">Northern Lights</button>
+<button class="px-6 py-2 rounded-full bg-surface-container text-on-surface-variant whitespace-nowrap font-label-sm hover:bg-surface-container-high transition-all duration-300" onclick="selectChip(this)">Pulse Wave</button>
+<button class="px-6 py-2 rounded-full bg-surface-container text-on-surface-variant whitespace-nowrap font-label-sm hover:bg-surface-container-high transition-all duration-300" onclick="selectChip(this)">Breathe</button>
+<button class="px-6 py-2 rounded-full bg-surface-container text-on-surface-variant whitespace-nowrap font-label-sm hover:bg-surface-container-high transition-all duration-300" onclick="selectChip(this)">Rainbow Shift</button>
+<button class="px-6 py-2 rounded-full bg-surface-container text-on-surface-variant whitespace-nowrap font-label-sm hover:bg-surface-container-high transition-all duration-300" onclick="selectChip(this)">Flicker</button>
+</div>
+</div>
+<!-- Custom Sliders -->
+<div class="space-y-6">
+<div class="space-y-2">
+<div class="flex justify-between items-center">
+<label class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant">Duration</label>
+<span class="text-primary font-title-md">1.5s</span>
+</div>
+<input class="w-full h-2 bg-surface-container rounded-full appearance-none cursor-pointer accent-primary" max="5" min="0.1" step="0.1" type="range" value="1.5"/>
+</div>
+<div class="space-y-2">
+<div class="flex justify-between items-center">
+<label class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant">Intensity</label>
+<span class="text-primary font-title-md">80%</span>
+</div>
+<input class="w-full h-2 bg-surface-container rounded-full appearance-none cursor-pointer accent-primary" max="100" min="0" type="range" value="80"/>
+</div>
+</div>
+<button class="w-full py-4 rounded-xl bg-gradient-to-r from-primary to-primary-container text-white font-title-md flex items-center justify-center gap-2 active:scale-95 transition-transform shadow-lg shadow-primary-container/20">
+<span class="material-symbols-outlined">animation</span>
+                    Start Sequence
+                </button>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 w-full z-50 bg-surface/80 dark:bg-surface-container-low/80 backdrop-blur-xl rounded-t-lg shadow-[0px_-10px_30px_rgba(0,180,216,0.08)]">
+<div class="flex justify-around items-center w-full h-20 px-gutter pb-safe">
+<!-- Dynamic Tab -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant/60 dark:text-outline-variant/60 hover:text-primary dark:hover:text-primary-fixed-dim transition-all duration-300 active:scale-90" href="#dynamic-mode">
+<span class="material-symbols-outlined">sensors</span>
+<span class="font-label-sm text-label-sm uppercase tracking-widest mt-1">Dynamic</span>
+</a>
+<!-- Remote Tab (Active) -->
+<a class="flex flex-col items-center justify-center text-primary dark:text-primary-fixed-dim transition-all duration-300 active:scale-90" href="#remote-mode">
+<div class="bg-primary/10 px-6 py-1 rounded-full mb-1">
+<span class="material-symbols-outlined">fluorescent</span>
+</div>
+<span class="font-label-sm text-label-sm uppercase tracking-widest">Remote</span>
+</a>
+<!-- Animation Tab -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant/60 dark:text-outline-variant/60 hover:text-primary dark:hover:text-primary-fixed-dim transition-all duration-300 active:scale-90" href="#animation-mode">
+<span class="material-symbols-outlined">animation</span>
+<span class="font-label-sm text-label-sm uppercase tracking-widest mt-1">Animation</span>
+</a>
+</div>
+</nav>
+<script>
+        function toggleLED(btn, color) {
+            // Remove active classes from all buttons in the remote section
+            const buttons = document.querySelectorAll('#remote-mode button');
+            buttons.forEach(b => {
+                b.classList.remove('active', 'active-glow-orange', 'active-glow-green', 'active-glow-red', 'active-glow-blue', 'active-glow-yellow', 'active-glow-white', 'border-primary-container');
+            });
+            
+            // Add active state to clicked button
+            btn.classList.add('active', `active-glow-${color}`, 'border-primary-container');
+        }
+
+        function selectChip(btn) {
+            const chips = btn.parentElement.querySelectorAll('button');
+            chips.forEach(c => {
+                c.classList.remove('bg-primary', 'text-on-primary');
+                c.classList.add('bg-surface-container', 'text-on-surface-variant');
+            });
+            btn.classList.remove('bg-surface-container', 'text-on-surface-variant');
+            btn.classList.add('bg-primary', 'text-on-primary');
+        }
+
+        // Initialize active state for one button
+        document.addEventListener('DOMContentLoaded', () => {
+            const morningBtn = document.querySelector('button[onclick*="yellow"]');
+            if(morningBtn) toggleLED(morningBtn, 'yellow');
+        });
+
+        // Simple toggle logic for Dynamic Mode
+        const dynamicToggle = document.getElementById('toggle-dynamic');
+        dynamicToggle.addEventListener('click', () => {
+            const ball = dynamicToggle.querySelector('div');
+            if (ball.classList.contains('translate-x-6')) {
+                ball.classList.remove('translate-x-6');
+                dynamicToggle.classList.replace('bg-white/30', 'bg-slate-300');
+            } else {
+                ball.classList.add('translate-x-6');
+                dynamicToggle.classList.replace('bg-slate-300', 'bg-white/30');
+            }
+        });
+    </script>
+</body></html>

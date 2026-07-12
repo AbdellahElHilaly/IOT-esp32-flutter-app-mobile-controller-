@@ -1,0 +1,21 @@
+.idea/
+.vscode/
+*.iml
+*.log
+.DS_Store
+build/
+.dart_tool/
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+/app mobile/build/
+/app mobile/.dart_tool/
+/app mobile/.flutter-plugins-dependencies
+/app mobile/.pub-cache/
+/app mobile/.pub/
+/app mobile/android/.gradle/
+/app mobile/android/app/build/
+/app mobile/android/build/
+/app mobile/android/app/debug/
+/app mobile/android/app/profile/
+/app mobile/android/app/release/
