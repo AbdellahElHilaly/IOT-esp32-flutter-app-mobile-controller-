@@ -251,6 +251,7 @@ const slideColors = [
   { primary: 0x54c5f8, secondary: 0x4ade80 },
 ];
 let currentColorTarget = slideColors[0];
+let currentSlide = 0;
 
 function animate() {
   requestAnimationFrame(animate);
@@ -335,7 +336,6 @@ window.addEventListener('resize', () => {
 // ──── SLIDE NAVIGATION ────
 const slides = document.querySelectorAll('.slide');
 const totalSlides = slides.length;
-let currentSlide = 0;
 let isTransitioning = false;
 
 const slideCounter = document.getElementById('slideCounter');
