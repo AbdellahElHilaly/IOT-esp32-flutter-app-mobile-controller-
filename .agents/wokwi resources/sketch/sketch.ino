@@ -28,6 +28,12 @@ int darkThreshold = 800;
 int semiThreshold = 2000;
 bool buzzerSoundEnabled = true;
 
+int selectedAnimation = 0;
+int selectedRoomsMask = 15;
+unsigned long lastAnimUpdate = 0;
+int animStep = 0;
+bool animToggle = false;
+
 unsigned long motionTriggerTime = 0;
 bool motionActive = false;
 
@@ -61,7 +67,11 @@ void sendSystemState() {
   SerialBT.print(",TS=");
   SerialBT.print(semiThreshold);
   SerialBT.print(",B=");
-  SerialBT.println(buzzerSoundEnabled ? 1 : 0);
+  SerialBT.print(buzzerSoundEnabled ? 1 : 0);
+  SerialBT.print(",A=");
+  SerialBT.print(selectedAnimation);
+  SerialBT.print(",AR=");
+  SerialBT.println(selectedRoomsMask);
 }
 
 void runAutoLEDs() {
@@ -129,6 +139,68 @@ void runAutoLEDs() {
   }
 }
 
+void runSelectedAnimation() {
+  unsigned long now = millis();
+
+  for (int r = 0; r < 4; r++) {
+    if (!((selectedRoomsMask >> r) & 1)) {
+      digitalWrite(LED_PINS[r * 2], LOW);
+      digitalWrite(LED_PINS[r * 2 + 1], LOW);
+    }
+  }
+
+  if (selectedAnimation == 0) {
+    if (now - lastAnimUpdate >= 250) {
+      lastAnimUpdate = now;
+      animStep = (animStep + 1) % 4;
+      for (int r = 0; r < 4; r++) {
+        if (((selectedRoomsMask >> r) & 1)) {
+          if (r == animStep) {
+            digitalWrite(LED_PINS[r * 2], HIGH);
+            digitalWrite(LED_PINS[r * 2 + 1], HIGH);
+          } else {
+            digitalWrite(LED_PINS[r * 2], LOW);
+            digitalWrite(LED_PINS[r * 2 + 1], LOW);
+          }
+        }
+      }
+    }
+  } else if (selectedAnimation == 1) {
+    if (now - lastAnimUpdate >= 500) {
+      lastAnimUpdate = now;
+      animToggle = !animToggle;
+      for (int r = 0; r < 4; r++) {
+        if (((selectedRoomsMask >> r) & 1)) {
+          digitalWrite(LED_PINS[r * 2], animToggle ? HIGH : LOW);
+          digitalWrite(LED_PINS[r * 2 + 1], animToggle ? HIGH : LOW);
+        }
+      }
+    }
+  } else if (selectedAnimation == 2) {
+    if (now - lastAnimUpdate >= 100) {
+      lastAnimUpdate = now;
+      animToggle = !animToggle;
+      for (int r = 0; r < 4; r++) {
+        if (((selectedRoomsMask >> r) & 1)) {
+          digitalWrite(LED_PINS[r * 2], animToggle ? HIGH : LOW);
+          digitalWrite(LED_PINS[r * 2 + 1], animToggle ? HIGH : LOW);
+        }
+      }
+    }
+  } else if (selectedAnimation == 3) {
+    if (now - lastAnimUpdate >= 200) {
+      lastAnimUpdate = now;
+      animToggle = !animToggle;
+      for (int r = 0; r < 4; r++) {
+        if (((selectedRoomsMask >> r) & 1)) {
+          digitalWrite(LED_PINS[r * 2], animToggle ? HIGH : LOW);
+          digitalWrite(LED_PINS[r * 2 + 1], animToggle ? LOW : HIGH);
+        }
+      }
+    }
+  }
+}
+
 void loop() {
   while (SerialBT.available() > 0) {
     char c = SerialBT.read();
@@ -145,6 +217,8 @@ void loop() {
 
   if (currentMode == 1) {
     runAutoLEDs();
+  } else if (currentMode == 2) {
+    runSelectedAnimation();
   }
 
   if (isArmed && !alarmTriggered) {
@@ -197,7 +271,7 @@ void processCommand(String cmd) {
   if (cmd == "PING") {
     SerialBT.println("PONG");
   } else if (cmd.startsWith("L") && cmd.indexOf(":") > 0) {
-    if (isArmed || currentMode == 1) return;
+    if (isArmed || currentMode == 1 || currentMode == 2) return;
     int colonIdx = cmd.indexOf(":");
     int ledNum = cmd.substring(1, colonIdx).toInt();
     int state = cmd.substring(colonIdx + 1).toInt();
@@ -248,6 +322,12 @@ void processCommand(String cmd) {
     sendSystemState();
   } else if (cmd.startsWith("B:")) {
     buzzerSoundEnabled = (cmd.substring(2).toInt() == 1);
+    sendSystemState();
+  } else if (cmd.startsWith("A:")) {
+    selectedAnimation = cmd.substring(2).toInt();
+    sendSystemState();
+  } else if (cmd.startsWith("AR:")) {
+    selectedRoomsMask = cmd.substring(3).toInt();
     sendSystemState();
   } else if (cmd.startsWith("MODE:")) {
     currentMode = cmd.substring(5).toInt();
