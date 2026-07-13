@@ -28,6 +28,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   int _ldrDarkThreshold = 800;
   int _ldrSemiThreshold = 2000;
   bool _buzzerSoundEnabled = true;
+  int _selectedAnimationIndex = 0;
+  Set<int> _selectedAnimationRooms = {1, 2, 3, 4};
 
   BluetoothConnection? _connection;
   bool _isConnected = false;
@@ -189,6 +191,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       int dark = _ldrDarkThreshold;
       int semi = _ldrSemiThreshold;
       bool buzzer = _buzzerSoundEnabled;
+      int animIdx = _selectedAnimationIndex;
+      int roomsMask = 15;
       for (var part in parts) {
         List<String> kv = part.split('=');
         if (kv.length == 2) {
@@ -208,6 +212,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             semi = int.tryParse(val) ?? semi;
           } else if (key == 'B') {
             buzzer = val == '1';
+          } else if (key == 'A') {
+            animIdx = int.tryParse(val) ?? animIdx;
+          } else if (key == 'AR') {
+            roomsMask = int.tryParse(val) ?? roomsMask;
           }
         }
       }
@@ -219,6 +227,13 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         _ldrDarkThreshold = dark;
         _ldrSemiThreshold = semi;
         _buzzerSoundEnabled = buzzer;
+        _selectedAnimationIndex = animIdx;
+        _selectedAnimationRooms = {};
+        for (int i = 0; i < 4; i++) {
+          if (((roomsMask >> i) & 1) == 1) {
+            _selectedAnimationRooms.add(i + 1);
+          }
+        }
       });
     } catch (_) {}
   }
@@ -404,10 +419,11 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 0),
                     child: _buildHeader(textTheme),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(16.0, 10.0, 16.0, 0),
-                    child: _buildSystemOverview(textTheme),
-                  ),
+                  if (_currentIndex != 2)
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16.0, 10.0, 16.0, 0),
+                      child: _buildSystemOverview(textTheme),
+                    ),
                   Expanded(
                     child: SingleChildScrollView(
                       padding: const EdgeInsets.all(16.0),
@@ -439,6 +455,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         return _buildPage0(textTheme);
       case 1:
         return _buildPage1(textTheme);
+      case 2:
+        return _buildPage2(textTheme);
       default:
         return _buildPage0(textTheme);
     }
@@ -801,6 +819,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         children: [
           _buildNavBarItem(0, Icons.home_filled, 'Home'),
           _buildNavBarItem(1, Icons.sensors_rounded, 'Auto Mode'),
+          _buildNavBarItem(2, Icons.auto_awesome_rounded, 'Animations'),
         ],
       ),
     );
@@ -1432,6 +1451,330 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           ),
         );
       },
+    );
+  }
+
+  void _toggleAnimationRoom(int roomNum) {
+    setState(() {
+      if (_selectedAnimationRooms.contains(roomNum)) {
+        if (_selectedAnimationRooms.length > 1) {
+          _selectedAnimationRooms.remove(roomNum);
+        }
+      } else {
+        _selectedAnimationRooms.add(roomNum);
+      }
+    });
+    int mask = 0;
+    for (int r in _selectedAnimationRooms) {
+      mask |= (1 << (r - 1));
+    }
+    _sendCommand('AR:$mask');
+  }
+
+  Widget _buildPage2(TextTheme textTheme) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _buildBuzzerToggleRow(textTheme),
+        const SizedBox(height: 24),
+        _buildAnimationAlbum(textTheme),
+        const SizedBox(height: 24),
+        _buildAnimationRoomsSelector(textTheme),
+      ],
+    );
+  }
+
+  Widget _buildBuzzerToggleRow(TextTheme textTheme) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.65),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: Colors.white,
+          width: 1.5,
+        ),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+            child: Row(
+              children: [
+                Icon(
+                  _buzzerSoundEnabled ? Icons.volume_up : Icons.volume_off,
+                  color: _buzzerSoundEnabled ? const Color(0xFF4AE183) : LuminaTheme.outlineColor,
+                  size: 22,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Buzzer Sound Status',
+                        style: GoogleFonts.manrope(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: LuminaTheme.onSurfaceColor,
+                        ),
+                      ),
+                      Text(
+                        _buzzerSoundEnabled ? 'Buzzer beep sounds are active' : 'Buzzer beep sounds are muted',
+                        style: GoogleFonts.manrope(
+                          fontSize: 10,
+                          color: LuminaTheme.outlineColor,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Switch(
+            value: _buzzerSoundEnabled,
+            activeColor: const Color(0xFF4AE183),
+            onChanged: (val) {
+              _toggleBuzzerSound();
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAnimationAlbum(TextTheme textTheme) {
+    final List<Map<String, dynamic>> animationsList = [
+      {
+        'title': 'Wave Chase',
+        'description': 'Sequential room-to-room light wave',
+        'icon': Icons.waves_rounded,
+        'color': const Color(0xFF4A90E2),
+      },
+      {
+        'title': 'Breathing Glow',
+        'description': 'Slow breathing glow transition',
+        'icon': Icons.favorite_rounded,
+        'color': const Color(0xFFE24A8D),
+      },
+      {
+        'title': 'Party Strobe',
+        'description': 'Rapid strobe flashing lights',
+        'icon': Icons.flash_on_rounded,
+        'color': const Color(0xFFF5A623),
+      },
+      {
+        'title': 'Alternating Pulse',
+        'description': 'Pulse between odd and even LEDs',
+        'icon': Icons.sync_alt_rounded,
+        'color': const Color(0xFF4AE183),
+      },
+    ];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'SELECT LIGHT ANIMATION',
+          style: textTheme.labelSmall?.copyWith(
+            fontSize: 11,
+            letterSpacing: 1.5,
+            fontWeight: FontWeight.bold,
+            color: LuminaTheme.outlineColor,
+          ),
+        ),
+        const SizedBox(height: 12),
+        SizedBox(
+          height: 140,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            itemCount: animationsList.length,
+            itemBuilder: (context, index) {
+              final anim = animationsList[index];
+              final isSelected = _selectedAnimationIndex == index;
+              return GestureDetector(
+                onTap: () {
+                  setState(() {
+                    _selectedAnimationIndex = index;
+                  });
+                  _sendCommand('A:$index');
+                },
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 250),
+                  width: 220,
+                  margin: const EdgeInsets.only(right: 12),
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: isSelected
+                        ? anim['color'].withValues(alpha: 0.15)
+                        : Colors.white.withValues(alpha: 0.65),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: isSelected ? anim['color'] : Colors.white,
+                      width: 2.0,
+                    ),
+                    boxShadow: isSelected
+                        ? [
+                            BoxShadow(
+                              color: anim['color'].withValues(alpha: 0.15),
+                              blurRadius: 10,
+                              offset: const Offset(0, 4),
+                            )
+                          ]
+                        : [],
+                  ),
+                  child: Column(
+                     crossAxisAlignment: CrossAxisAlignment.start,
+                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                     children: [
+                       Row(
+                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                         children: [
+                           Icon(
+                             anim['icon'],
+                             color: isSelected ? anim['color'] : LuminaTheme.outlineColor,
+                             size: 32,
+                           ),
+                           if (isSelected)
+                             Icon(
+                               Icons.check_circle_rounded,
+                               color: anim['color'],
+                               size: 20,
+                             ),
+                         ],
+                       ),
+                       Column(
+                         crossAxisAlignment: CrossAxisAlignment.start,
+                         children: [
+                           Text(
+                             anim['title'],
+                             style: GoogleFonts.manrope(
+                               fontSize: 14,
+                               fontWeight: FontWeight.bold,
+                               color: LuminaTheme.onSurfaceColor,
+                             ),
+                           ),
+                           const SizedBox(height: 4),
+                           Text(
+                             anim['description'],
+                             maxLines: 2,
+                             overflow: TextOverflow.ellipsis,
+                             style: GoogleFonts.manrope(
+                               fontSize: 10,
+                               color: LuminaTheme.outlineColor,
+                             ),
+                           ),
+                         ],
+                       ),
+                     ],
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildAnimationRoomsSelector(TextTheme textTheme) {
+    final rooms = [
+      {'id': 1, 'name': 'Room 1', 'floor': 'Ground Floor L'},
+      {'id': 2, 'name': 'Room 2', 'floor': 'Ground Floor R'},
+      {'id': 3, 'name': 'Room 3', 'floor': 'First Floor L'},
+      {'id': 4, 'name': 'Room 4', 'floor': 'First Floor R'},
+    ];
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'TARGET ROOMS',
+          style: textTheme.labelSmall?.copyWith(
+            fontSize: 11,
+            letterSpacing: 1.5,
+            fontWeight: FontWeight.bold,
+            color: LuminaTheme.outlineColor,
+          ),
+        ),
+        const SizedBox(height: 12),
+        GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            crossAxisSpacing: 12,
+            mainAxisSpacing: 12,
+            childAspectRatio: 1.6,
+          ),
+          itemCount: rooms.length,
+          itemBuilder: (context, index) {
+            final room = rooms[index];
+            final roomId = room['id'] as int;
+            final isSelected = _selectedAnimationRooms.contains(roomId);
+            return GestureDetector(
+              onTap: () => _toggleAnimationRoom(roomId),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: isSelected
+                      ? LuminaTheme.primaryColor.withValues(alpha: 0.1)
+                      : Colors.white.withValues(alpha: 0.65),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: isSelected ? LuminaTheme.primaryColor : Colors.white,
+                    width: 1.5,
+                  ),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Icon(
+                          Icons.meeting_room_rounded,
+                          color: isSelected ? LuminaTheme.primaryColor : LuminaTheme.outlineColor,
+                          size: 20,
+                        ),
+                        Checkbox(
+                          value: isSelected,
+                          activeColor: LuminaTheme.primaryColor,
+                          onChanged: (_) => _toggleAnimationRoom(roomId),
+                          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          visualDensity: VisualDensity.compact,
+                        ),
+                      ],
+                    ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          room['name'] as String,
+                          style: GoogleFonts.manrope(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: LuminaTheme.onSurfaceColor,
+                          ),
+                        ),
+                        Text(
+                          room['floor'] as String,
+                          style: GoogleFonts.manrope(
+                            fontSize: 8,
+                            color: LuminaTheme.outlineColor,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
+      ],
     );
   }
 }
