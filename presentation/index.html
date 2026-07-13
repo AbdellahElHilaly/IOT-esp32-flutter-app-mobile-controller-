@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Smart Home IoT — Project Presentation</title>
+  <meta name="description" content="ESP32 Smart Home System — Interactive 3D Presentation" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- Three.js 3D Canvas Background -->
+  <canvas id="bg-canvas"></canvas>
+
+  <!-- Slide Progress Bar -->
+  <div class="progress-bar">
+    <div class="progress-fill" id="progressFill"></div>
+  </div>
+
+  <!-- Navigation Dots -->
+  <nav class="nav-dots" id="navDots"></nav>
+
+  <!-- Slide Counter -->
+  <div class="slide-counter" id="slideCounter">01 / 04</div>
+
+  <!-- Navigation Arrows -->
+  <button class="nav-arrow nav-prev" id="prevBtn" aria-label="Previous slide">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+  </button>
+  <button class="nav-arrow nav-next" id="nextBtn" aria-label="Next slide">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+  </button>
+
+  <!-- ==================== SLIDES ==================== -->
+  <div class="slides-container" id="slidesContainer">
+
+    <!-- SLIDE 1: Project Overview -->
+    <section class="slide active" data-index="0">
+      <div class="slide-inner">
+        <div class="slide-badge">🏠 Smart Home IoT System</div>
+        <h1 class="slide-title">
+          <span class="title-line">Intelligent</span>
+          <span class="title-line accent">Home Control</span>
+        </h1>
+        <p class="slide-subtitle">
+          An ESP32-powered smart home system with real-time sensor automation,
+          Bluetooth connectivity, and a beautiful Flutter mobile app.
+        </p>
+
+        <div class="overview-cards">
+          <div class="overview-card">
+            <div class="card-icon">🔌</div>
+            <h3>ESP32 Microcontroller</h3>
+            <p>Controls LEDs, reads sensors, and manages automation logic in real-time</p>
+          </div>
+          <div class="overview-card">
+            <div class="card-icon">📱</div>
+            <h3>Flutter Mobile App</h3>
+            <p>Beautiful UI to control lights, configure sensors, and run animations</p>
+          </div>
+          <div class="overview-card">
+            <div class="card-icon bluetooth-icon">
+              <svg viewBox="0 0 24 24" width="32" height="32" fill="currentColor"><path d="M17.71 7.71L12 2h-1v7.59L6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 11 14.41V22h1l5.71-5.71-4.3-4.29 4.3-4.29zM13 5.83l1.88 1.88L13 9.59V5.83zm1.88 10.46L13 18.17v-3.76l1.88 1.88z"/></svg>
+            </div>
+            <h3>Bluetooth Link</h3>
+            <p>Wireless communication between phone and microcontroller via BT Serial</p>
+          </div>
+        </div>
+
+        <div class="scroll-hint">
+          <span>Scroll or press →</span>
+          <div class="scroll-arrow">↓</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 2: What We Learned -->
+    <section class="slide" data-index="1">
+      <div class="slide-inner">
+        <div class="slide-badge">📚 Knowledge Gained</div>
+        <h1 class="slide-title">
+          <span class="title-line">What We</span>
+          <span class="title-line accent">Learned</span>
+        </h1>
+
+        <div class="learned-grid">
+          <div class="learned-item" style="--delay: 0">
+            <div class="learned-number">01</div>
+            <div class="learned-content">
+              <h3>Embedded Systems Programming</h3>
+              <p>Writing C++ firmware for ESP32, handling GPIO pins, interrupts, and non-blocking timing with millis()</p>
+            </div>
+          </div>
+          <div class="learned-item" style="--delay: 1">
+            <div class="learned-number">02</div>
+            <div class="learned-content">
+              <h3>Bluetooth Serial Communication</h3>
+              <p>Establishing bidirectional data streams between mobile devices and microcontrollers using BT Classic</p>
+            </div>
+          </div>
+          <div class="learned-item" style="--delay: 2">
+            <div class="learned-number">03</div>
+            <div class="learned-content">
+              <h3>Mobile App Development</h3>
+              <p>Building cross-platform apps with Flutter & Dart, state management, and responsive UI design</p>
+            </div>
+          </div>
+          <div class="learned-item" style="--delay: 3">
+            <div class="learned-number">04</div>
+            <div class="learned-content">
+              <h3>Sensor Integration & Automation</h3>
+              <p>Reading PIR motion and LDR light sensors, creating threshold-based automation logic</p>
+            </div>
+          </div>
+          <div class="learned-item" style="--delay: 4">
+            <div class="learned-number">05</div>
+            <div class="learned-content">
+              <h3>Real-Time Telemetry</h3>
+              <p>Broadcasting system state updates and synchronizing UI controls with live hardware data</p>
+            </div>
+          </div>
+          <div class="learned-item" style="--delay: 5">
+            <div class="learned-number">06</div>
+            <div class="learned-content">
+              <h3>LED Animation Algorithms</h3>
+              <p>Designing non-blocking light patterns: wave chase, breathing, strobe, and snake animations</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 3: Hardware Used -->
+    <section class="slide" data-index="2">
+      <div class="slide-inner">
+        <div class="slide-badge">🔧 Components</div>
+        <h1 class="slide-title">
+          <span class="title-line">Hardware</span>
+          <span class="title-line accent">Used</span>
+        </h1>
+
+        <div class="hardware-showcase">
+          <div class="hw-card main-hw">
+            <div class="hw-glow"></div>
+            <div class="hw-emoji">🧠</div>
+            <h3>ESP32 Dev Board</h3>
+            <p>Dual-core 240 MHz, Wi-Fi + Bluetooth, 34 GPIO pins</p>
+            <span class="hw-tag">Main Controller</span>
+          </div>
+
+          <div class="hw-grid">
+            <div class="hw-card">
+              <div class="hw-emoji">💡</div>
+              <h3>8× LEDs</h3>
+              <p>4 rooms × 2 LEDs each</p>
+            </div>
+            <div class="hw-card">
+              <div class="hw-emoji">👁️</div>
+              <h3>PIR Sensor</h3>
+              <p>HC-SR501 Motion Detector</p>
+            </div>
+            <div class="hw-card">
+              <div class="hw-emoji">🌗</div>
+              <h3>LDR Sensor</h3>
+              <p>Light-Dependent Resistor</p>
+            </div>
+            <div class="hw-card">
+              <div class="hw-emoji">🔊</div>
+              <h3>Buzzer</h3>
+              <p>Piezo Alert Buzzer</p>
+            </div>
+            <div class="hw-card">
+              <div class="hw-emoji">⚡</div>
+              <h3>Resistors</h3>
+              <p>220Ω for LEDs, 10KΩ for LDR</p>
+            </div>
+            <div class="hw-card">
+              <div class="hw-emoji">🔌</div>
+              <h3>Breadboard & Wires</h3>
+              <p>Prototyping platform</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 4: Software Used -->
+    <section class="slide" data-index="3">
+      <div class="slide-inner">
+        <div class="slide-badge">💻 Tech Stack</div>
+        <h1 class="slide-title">
+          <span class="title-line">Software</span>
+          <span class="title-line accent">Used</span>
+        </h1>
+
+        <div class="software-columns">
+          <div class="sw-column">
+            <h3 class="sw-column-title">
+              <span class="sw-dot" style="background:#00C4B4"></span>
+              Firmware
+            </h3>
+            <div class="sw-item">
+              <div class="sw-logo">
+                <svg viewBox="0 0 24 24" width="28" height="28" fill="#00979D"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15h-2v-2h2v2zm0-4h-2V7h2v6zm4 4h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+              </div>
+              <div>
+                <h4>Arduino IDE</h4>
+                <p>ESP32 firmware development & flashing</p>
+              </div>
+            </div>
+            <div class="sw-item">
+              <div class="sw-logo">
+                <span style="font-size:28px;font-weight:800;color:#E34F26;">C++</span>
+              </div>
+              <div>
+                <h4>C++ Language</h4>
+                <p>Embedded systems programming</p>
+              </div>
+            </div>
+            <div class="sw-item">
+              <div class="sw-logo">
+                <span style="font-size:22px;">📡</span>
+              </div>
+              <div>
+                <h4>BluetoothSerial Library</h4>
+                <p>ESP32 BT Classic serial communication</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="sw-column">
+            <h3 class="sw-column-title">
+              <span class="sw-dot" style="background:#54C5F8"></span>
+              Mobile App
+            </h3>
+            <div class="sw-item">
+              <div class="sw-logo">
+                <svg viewBox="0 0 24 24" width="28" height="28" fill="#54C5F8"><path d="M14.314 0L2.3 12 6 15.7 21.684.013h-7.357zm.014 11.072L7.857 17.53l6.47 6.47H21.7l-6.46-6.468 6.46-6.46h-7.37z"/></svg>
+              </div>
+              <div>
+                <h4>Flutter Framework</h4>
+                <p>Cross-platform mobile UI toolkit</p>
+              </div>
+            </div>
+            <div class="sw-item">
+              <div class="sw-logo">
+                <span style="font-size:28px;font-weight:800;color:#0175C2;">Dart</span>
+              </div>
+              <div>
+                <h4>Dart Language</h4>
+                <p>App logic, state management & BT handling</p>
+              </div>
+            </div>
+            <div class="sw-item">
+              <div class="sw-logo">
+                <span style="font-size:22px;">🤖</span>
+              </div>
+              <div>
+                <h4>Android Studio</h4>
+                <p>Build toolchain, emulation & debugging</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="sw-column">
+            <h3 class="sw-column-title">
+              <span class="sw-dot" style="background:#F5A623"></span>
+              Tools
+            </h3>
+            <div class="sw-item">
+              <div class="sw-logo">
+                <svg viewBox="0 0 24 24" width="28" height="28" fill="#F05032"><path d="M21.62 11.108l-8.731-8.729a1.292 1.292 0 00-1.823 0L9.257 4.19l2.299 2.3a1.532 1.532 0 011.939 1.95l2.214 2.217a1.532 1.532 0 011.583 2.6 1.536 1.536 0 01-2.119-.363 1.534 1.534 0 01-.158-1.449l-2.065-2.067v5.436a1.534 1.534 0 01-.571 2.953 1.534 1.534 0 01-1.085-2.618 1.525 1.525 0 01.669-.391V9.96a1.533 1.533 0 01-.832-2.012l-2.264-2.267L2.38 11.108a1.29 1.29 0 000 1.823l8.731 8.729a1.29 1.29 0 001.823 0l8.686-8.689a1.29 1.29 0 000-1.823z"/></svg>
+              </div>
+              <div>
+                <h4>Git</h4>
+                <p>Version control & project history</p>
+              </div>
+            </div>
+            <div class="sw-item">
+              <div class="sw-logo">
+                <span style="font-size:22px;">🔬</span>
+              </div>
+              <div>
+                <h4>Wokwi Simulator</h4>
+                <p>ESP32 circuit simulation & testing</p>
+              </div>
+            </div>
+            <div class="sw-item">
+              <div class="sw-logo">
+                <span style="font-size:22px;">🧪</span>
+              </div>
+              <div>
+                <h4>Flutter DevTools</h4>
+                <p>Performance profiling & widget inspection</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="main.js"></script>
+</body>
+</html>
