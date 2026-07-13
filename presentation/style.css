@@ -53,25 +53,6 @@ body {
   pointer-events: none;
 }
 
-/* ============ Progress Bar ============ */
-.progress-bar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 3px;
-  background: rgba(255, 255, 255, 0.05);
-  z-index: 100;
-}
-
-.progress-fill {
-  height: 100%;
-  width: 25%;
-  background: linear-gradient(90deg, var(--accent-cyan), var(--accent-purple));
-  border-radius: 0 2px 2px 0;
-  transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 0 20px var(--accent-cyan);
-}
 
 /* ============ Navigation Dots ============ */
 .nav-dots {
@@ -248,66 +229,63 @@ body {
   margin-bottom: 48px;
 }
 
-/* ============ SLIDE 1: Overview Cards ============ */
-.overview-cards {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
-}
-
-.overview-card {
-  background: var(--glass-bg);
-  border: 1px solid var(--glass-border);
-  border-radius: 20px;
-  padding: 28px 24px;
-  backdrop-filter: blur(16px);
-  transition: all 0.4s ease;
-  position: relative;
-  overflow: hidden;
-}
-
-.overview-card::before {
-  content: '';
+/* ============ SLIDE 1: 3D House Hero ============ */
+#house-canvas {
   position: absolute;
   top: 0;
   left: 0;
-  right: 0;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, var(--accent-cyan), transparent);
-  opacity: 0;
-  transition: opacity 0.4s;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
 }
 
-.overview-card:hover {
-  background: var(--glass-bg-hover);
-  transform: translateY(-4px);
-  border-color: rgba(0, 229, 255, 0.15);
+.hero-overlay {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  max-width: 560px;
+  pointer-events: none;
 }
 
-.overview-card:hover::before {
-  opacity: 1;
+.hero-overlay * {
+  pointer-events: auto;
 }
 
-.card-icon {
-  font-size: 32px;
-  margin-bottom: 16px;
+.hero-text {
+  background: rgba(10, 14, 26, 0.55);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 24px;
+  padding: 40px 36px;
 }
 
-.card-icon.bluetooth-icon {
-  color: var(--accent-blue);
+.hero-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
 }
 
-.overview-card h3 {
-  font-size: 16px;
-  font-weight: 600;
-  margin-bottom: 8px;
-  color: var(--text-primary);
-}
-
-.overview-card p {
-  font-size: 13px;
-  line-height: 1.6;
+.hero-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 14px;
+  border-radius: 50px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 12px;
+  font-weight: 500;
   color: var(--text-secondary);
+  letter-spacing: 0.3px;
+}
+
+.hero-tag.blue-tag {
+  color: var(--accent-blue);
+  border-color: rgba(59, 130, 246, 0.25);
+  background: rgba(59, 130, 246, 0.08);
 }
 
 /* Scroll Hint */
