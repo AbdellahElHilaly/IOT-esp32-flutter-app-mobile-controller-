@@ -108,7 +108,9 @@ if (houseCanvas) {
   pirMesh.position.set(0, 0.5, -4.8);
   pirMesh.rotation.x = Math.PI;
   houseGroup.add(pirMesh);
-  houseGroup.add(Object.assign(new THREE.PointLight(0xef4444, 0.25, 3), { position: new THREE.Vector3(0, 0.8, -4.8) }));
+  const pirLight = new THREE.PointLight(0xef4444, 0.25, 3);
+  pirLight.position.set(0, 0.8, -4.8);
+  houseGroup.add(pirLight);
 
   // ── LDR (green sphere, left wall) ──
   ldrMesh = new THREE.Mesh(
@@ -117,7 +119,9 @@ if (houseCanvas) {
   );
   ldrMesh.position.set(-4.8, 0.4, 0);
   houseGroup.add(ldrMesh);
-  houseGroup.add(Object.assign(new THREE.PointLight(0x22c55e, 0.25, 3), { position: new THREE.Vector3(-4.8, 0.6, 0) }));
+  const ldrLight = new THREE.PointLight(0x22c55e, 0.25, 3);
+  ldrLight.position.set(-4.8, 0.6, 0);
+  houseGroup.add(ldrLight);
 
   // ── Buzzer (purple octahedron, right wall) ──
   buzMesh = new THREE.Mesh(
@@ -126,7 +130,9 @@ if (houseCanvas) {
   );
   buzMesh.position.set(4.8, 0.42, 0);
   houseGroup.add(buzMesh);
-  houseGroup.add(Object.assign(new THREE.PointLight(0x8b5cf6, 0.25, 3), { position: new THREE.Vector3(4.8, 0.6, 0) }));
+  const buzLight = new THREE.PointLight(0x8b5cf6, 0.25, 3);
+  buzLight.position.set(4.8, 0.6, 0);
+  houseGroup.add(buzLight);
 
   // ── Labels ──
   function makeLabel(text, x, z, color, size) {
