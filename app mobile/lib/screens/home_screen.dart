@@ -1193,6 +1193,11 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 
   Widget _buildHomeModeWidget(TextTheme textTheme) {
+    final isRed = _activeSubmittedPageIndex == 1 || _isHomeClosed;
+    final themeColor = isRed ? const Color(0xFFEF4444) : const Color(0xFF4AE183);
+    final text2 = _activeSubmittedPageIndex == 1 ? 'PROTECTION' : (_isHomeClosed ? 'CLOSED' : 'OPEN');
+    final icon = _activeSubmittedPageIndex == 1 ? Icons.security : (_isHomeClosed ? Icons.lock : Icons.lock_open);
+
     return GestureDetector(
       onTap: _toggleHomeMode,
       child: AnimatedContainer(
@@ -1200,19 +1205,13 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         width: 70,
         height: 100,
         decoration: BoxDecoration(
-          color: _isHomeClosed || _activeSubmittedPageIndex == 1
-              ? Colors.grey.withValues(alpha: 0.1)
-              : (_isHomeClosed
-                  ? const Color(0xFFEF4444).withValues(alpha: 0.1)
-                  : const Color(0xFF4AE183).withValues(alpha: 0.1)),
+          color: themeColor.withValues(alpha: 0.1),
           borderRadius: const BorderRadius.only(
             topLeft: Radius.circular(12),
             topRight: Radius.circular(12),
           ),
           border: Border.all(
-            color: _isHomeClosed || _activeSubmittedPageIndex == 1
-                ? Colors.grey
-                : (_isHomeClosed ? const Color(0xFFEF4444) : const Color(0xFF4AE183)),
+            color: themeColor,
             width: 1.5,
           ),
         ),
@@ -1220,10 +1219,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
-              _isHomeClosed || _activeSubmittedPageIndex == 1 ? Icons.lock_outline : (_isHomeClosed ? Icons.lock : Icons.lock_open),
-              color: _isHomeClosed || _activeSubmittedPageIndex == 1
-                  ? Colors.grey
-                  : (_isHomeClosed ? const Color(0xFFEF4444) : const Color(0xFF4AE183)),
+              icon,
+              color: themeColor,
               size: 24,
             ),
             const SizedBox(height: 6),
@@ -1232,21 +1229,15 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               style: textTheme.labelSmall?.copyWith(
                 fontSize: 9,
                 fontWeight: FontWeight.bold,
-                color: _isHomeClosed || _activeSubmittedPageIndex == 1
-                    ? Colors.grey
-                    : (_isHomeClosed ? const Color(0xFFEF4444) : const Color(0xFF4AE183)),
+                color: themeColor,
               ),
             ),
             Text(
-              _isHomeClosed || _activeSubmittedPageIndex == 1
-                  ? 'AUTO'
-                  : (_isHomeClosed ? 'CLOSED' : 'OPEN'),
+              text2,
               style: GoogleFonts.hankenGrotesk(
-                fontSize: 8,
+                fontSize: 7.5,
                 fontWeight: FontWeight.bold,
-                color: _isHomeClosed || _activeSubmittedPageIndex == 1
-                    ? Colors.grey
-                    : (_isHomeClosed ? const Color(0xFFEF4444) : const Color(0xFF4AE183)),
+                color: themeColor,
               ),
             ),
           ],
