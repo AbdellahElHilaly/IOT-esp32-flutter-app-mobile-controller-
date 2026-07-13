@@ -33,11 +33,9 @@
   <!-- ==================== SLIDES ==================== -->
   <div class="slides-container" id="slidesContainer">
 
-    <!-- SLIDE 1: Project Overview with 3D House -->
+    <!-- SLIDE 1: Project Overview with 3D Top-View House -->
     <section class="slide active" data-index="0">
-      <!-- Dedicated 3D canvas for the house scene -->
-      <canvas id="house-canvas"></canvas>
-      <div class="slide-inner hero-overlay">
+      <div class="slide-inner hero-split">
         <div class="hero-text">
           <div class="slide-badge">🏠 Smart Home IoT System</div>
           <h1 class="slide-title">
@@ -56,14 +54,23 @@
               Bluetooth
             </span>
             <span class="hero-tag">🔊 Buzzer</span>
-            <span class="hero-tag">👁️ PIR Sensor</span>
-            <span class="hero-tag">🌗 LDR Sensor</span>
+            <span class="hero-tag">👁️ PIR</span>
+            <span class="hero-tag">🌗 LDR</span>
           </div>
         </div>
-        <div class="scroll-hint">
-          <span>Scroll or press →</span>
-          <div class="scroll-arrow">↓</div>
+        <div class="hero-3d">
+          <canvas id="house-canvas"></canvas>
+          <div class="legend-bar">
+            <span class="legend-item"><span class="legend-dot led-dot"></span> LED</span>
+            <span class="legend-item"><span class="legend-dot pir-dot"></span> PIR Sensor</span>
+            <span class="legend-item"><span class="legend-dot ldr-dot"></span> LDR Sensor</span>
+            <span class="legend-item"><span class="legend-dot buz-dot"></span> Buzzer</span>
+          </div>
         </div>
+      </div>
+      <div class="scroll-hint">
+        <span>Scroll or press →</span>
+        <div class="scroll-arrow">↓</div>
       </div>
     </section>
 

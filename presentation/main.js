@@ -1,6 +1,6 @@
 /* ============================================
    Smart Home IoT — 3D Presentation Engine
-   Three.js Background + 3D House Scene + Slides
+   Top-Down House Floor Plan + Particle BG
    ============================================ */
 
 // ──── BACKGROUND PARTICLE SCENE ────
@@ -12,238 +12,243 @@ bgRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 bgRenderer.setSize(window.innerWidth, window.innerHeight);
 bgCamera.position.z = 30;
 
-// Particles
-const PARTICLE_COUNT = 800;
+const PARTICLE_COUNT = 600;
 const pGeo = new THREE.BufferGeometry();
 const pPos = new Float32Array(PARTICLE_COUNT * 3);
 const pVel = new Float32Array(PARTICLE_COUNT * 3);
 for (let i = 0; i < PARTICLE_COUNT * 3; i += 3) {
-  pPos[i]     = (Math.random() - 0.5) * 80;
-  pPos[i + 1] = (Math.random() - 0.5) * 80;
-  pPos[i + 2] = (Math.random() - 0.5) * 80;
-  pVel[i]     = (Math.random() - 0.5) * 0.006;
-  pVel[i + 1] = (Math.random() - 0.5) * 0.006;
-  pVel[i + 2] = (Math.random() - 0.5) * 0.006;
+  pPos[i] = (Math.random() - 0.5) * 80;
+  pPos[i+1] = (Math.random() - 0.5) * 80;
+  pPos[i+2] = (Math.random() - 0.5) * 80;
+  pVel[i] = (Math.random() - 0.5) * 0.005;
+  pVel[i+1] = (Math.random() - 0.5) * 0.005;
+  pVel[i+2] = (Math.random() - 0.5) * 0.005;
 }
 pGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
-const pMat = new THREE.PointsMaterial({ size: 0.06, color: 0x00e5ff, transparent: true, opacity: 0.5, blending: THREE.AdditiveBlending, sizeAttenuation: true });
+const pMat = new THREE.PointsMaterial({ size: 0.06, color: 0x00e5ff, transparent: true, opacity: 0.4, blending: THREE.AdditiveBlending, sizeAttenuation: true });
 const particlesMesh = new THREE.Points(pGeo, pMat);
 bgScene.add(particlesMesh);
 
-// Floating wireframe shapes
-const floaters = [];
-const geos = [new THREE.IcosahedronGeometry(1.2, 0), new THREE.TorusGeometry(1, 0.3, 16, 32), new THREE.OctahedronGeometry(1, 0)];
-for (let i = 0; i < 4; i++) {
-  const mat = new THREE.MeshBasicMaterial({ color: i % 2 === 0 ? 0x00e5ff : 0xa855f7, wireframe: true, transparent: true, opacity: 0.1 });
-  const m = new THREE.Mesh(geos[i % geos.length], mat);
-  m.position.set((Math.random() - 0.5) * 50, (Math.random() - 0.5) * 30, -15 + Math.random() * 10);
-  m.userData = { rx: Math.random() * 0.003, ry: Math.random() * 0.003, baseY: m.position.y, fS: Math.random() * 0.0005 + 0.0003, fA: Math.random() * 3 + 1, mat };
-  bgScene.add(m);
-  floaters.push(m);
-}
-
-// ──── 3D HOUSE SCENE ────
+// ──── 3D HOUSE TOP-DOWN SCENE ────
 const houseCanvas = document.getElementById('house-canvas');
-const houseScene = new THREE.Scene();
-const houseCamera = new THREE.PerspectiveCamera(50, 1, 0.1, 200);
-const houseRenderer = new THREE.WebGLRenderer({ canvas: houseCanvas, alpha: true, antialias: true });
-houseRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-houseRenderer.shadowMap.enabled = true;
-houseRenderer.shadowMap.type = THREE.PCFSoftShadowMap;
+let houseScene, houseCamera, houseRenderer;
+let houseGroup;
+const ledMeshes = [];
+const ledLights = [];
+let pirMesh, ldrMesh, buzMesh;
 
-// Lighting
-const ambientLight = new THREE.AmbientLight(0x404060, 0.6);
-houseScene.add(ambientLight);
-const dirLight = new THREE.DirectionalLight(0xffffff, 0.9);
-dirLight.position.set(8, 12, 10);
-dirLight.castShadow = true;
-dirLight.shadow.mapSize.width = 1024;
-dirLight.shadow.mapSize.height = 1024;
-houseScene.add(dirLight);
-const fillLight = new THREE.DirectionalLight(0x4488ff, 0.3);
-fillLight.position.set(-8, 5, -5);
-houseScene.add(fillLight);
-const rimLight = new THREE.PointLight(0x00e5ff, 0.4, 30);
-rimLight.position.set(-5, 8, -8);
-houseScene.add(rimLight);
+if (houseCanvas) {
+  houseScene = new THREE.Scene();
+  houseScene.fog = new THREE.FogExp2(0x0a0e1a, 0.012);
 
-// House group
-const houseGroup = new THREE.Group();
+  // Orthographic-like perspective from above with slight angle
+  houseCamera = new THREE.PerspectiveCamera(45, 1, 0.1, 200);
+  houseCamera.position.set(0, 22, 6);
+  houseCamera.lookAt(0, 0, 0);
 
-// Ground
-const groundGeo = new THREE.BoxGeometry(18, 0.3, 14);
-const groundMat = new THREE.MeshPhongMaterial({ color: 0x1a2a1a, shininess: 10 });
-const ground = new THREE.Mesh(groundGeo, groundMat);
-ground.position.y = -2.65;
-ground.receiveShadow = true;
-houseGroup.add(ground);
+  houseRenderer = new THREE.WebGLRenderer({ canvas: houseCanvas, alpha: true, antialias: true });
+  houseRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-// Grass patches
-const grassMat = new THREE.MeshPhongMaterial({ color: 0x2d5a1e });
-const grass1 = new THREE.Mesh(new THREE.BoxGeometry(16, 0.05, 12), grassMat);
-grass1.position.y = -2.48;
-houseGroup.add(grass1);
+  // Lighting
+  const ambient = new THREE.AmbientLight(0x334466, 0.8);
+  houseScene.add(ambient);
+  const dirLight = new THREE.DirectionalLight(0xffffff, 0.5);
+  dirLight.position.set(5, 20, 5);
+  houseScene.add(dirLight);
 
-// House body
-const bodyGeo = new THREE.BoxGeometry(7, 4.5, 6);
-const bodyMat = new THREE.MeshPhongMaterial({ color: 0xd4c5a9, shininess: 20 });
-const body = new THREE.Mesh(bodyGeo, bodyMat);
-body.position.y = 0;
-body.castShadow = true;
-body.receiveShadow = true;
-houseGroup.add(body);
+  // ── Build the floor plan ──
+  houseGroup = new THREE.Group();
 
-// Roof — pyramid
-const roofGeo = new THREE.ConeGeometry(5.8, 2.5, 4);
-const roofMat = new THREE.MeshPhongMaterial({ color: 0x8b3a3a, shininess: 30 });
-const roof = new THREE.Mesh(roofGeo, roofMat);
-roof.position.y = 3.5;
-roof.rotation.y = Math.PI / 4;
-roof.castShadow = true;
-houseGroup.add(roof);
+  // Room floor colors (subtle dark tones)
+  const roomColors = [0x1a2533, 0x1a2830, 0x1f2533, 0x1a2530];
+  const roomLabels = ['Room 1', 'Room 2', 'Room 3', 'Room 4'];
 
-// Door
-const doorGeo = new THREE.BoxGeometry(1.2, 2.2, 0.15);
-const doorMat = new THREE.MeshPhongMaterial({ color: 0x5a3825 });
-const door = new THREE.Mesh(doorGeo, doorMat);
-door.position.set(0, -1.1, 3.08);
-houseGroup.add(door);
+  // Room positions: 2x2 grid, each room 5x5 units
+  // Room 1: top-left, Room 2: top-right, Room 3: bottom-left, Room 4: bottom-right
+  const roomCenters = [
+    { x: -2.8, z: -2.8 }, // Room 1
+    { x:  2.8, z: -2.8 }, // Room 2
+    { x: -2.8, z:  2.8 }, // Room 3
+    { x:  2.8, z:  2.8 }, // Room 4
+  ];
+  const ROOM_SIZE = 5;
+  const WALL_H = 1.2;
+  const WALL_T = 0.18;
 
-// Door handle
-const handleGeo = new THREE.SphereGeometry(0.08, 8, 8);
-const handleMat = new THREE.MeshPhongMaterial({ color: 0xccaa00, shininess: 80 });
-const handle = new THREE.Mesh(handleGeo, handleMat);
-handle.position.set(0.35, -1.1, 3.16);
-houseGroup.add(handle);
+  // Floor per room
+  roomCenters.forEach((rc, i) => {
+    const floor = new THREE.Mesh(
+      new THREE.BoxGeometry(ROOM_SIZE - 0.2, 0.1, ROOM_SIZE - 0.2),
+      new THREE.MeshPhongMaterial({ color: roomColors[i], shininess: 5 })
+    );
+    floor.position.set(rc.x, 0, rc.z);
+    houseGroup.add(floor);
+  });
 
-// Windows with glow
-const windowMat = new THREE.MeshPhongMaterial({ color: 0xffeebb, emissive: 0xffcc44, emissiveIntensity: 0.7, transparent: true, opacity: 0.9 });
-const windowFrameMat = new THREE.MeshPhongMaterial({ color: 0x3a3a3a });
+  // Wall material
+  const wallMat = new THREE.MeshPhongMaterial({ color: 0x556677, shininess: 15, transparent: true, opacity: 0.85 });
 
-function createWindow(x, y, z, rotY) {
-  const wGroup = new THREE.Group();
-  // Glass
-  const glass = new THREE.Mesh(new THREE.BoxGeometry(1.1, 1.1, 0.08), windowMat);
-  wGroup.add(glass);
-  // Frame cross
-  const hBar = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.06, 0.12), windowFrameMat);
-  wGroup.add(hBar);
-  const vBar = new THREE.Mesh(new THREE.BoxGeometry(0.06, 1.2, 0.12), windowFrameMat);
-  wGroup.add(vBar);
-  // Window light glow
-  const glowLight = new THREE.PointLight(0xffcc44, 0.3, 4);
-  glowLight.position.set(0, 0, 0.5);
-  wGroup.add(glowLight);
+  function addWall(x, z, w, d) {
+    const wall = new THREE.Mesh(new THREE.BoxGeometry(w, WALL_H, d), wallMat);
+    wall.position.set(x, WALL_H / 2, z);
+    houseGroup.add(wall);
+  }
 
-  wGroup.position.set(x, y, z);
-  wGroup.rotation.y = rotY || 0;
-  return wGroup;
+  // Outer walls
+  const HS = 5.4; // half-size
+  addWall(0, -HS, HS * 2 + WALL_T, WALL_T);   // top
+  addWall(0, HS, HS * 2 + WALL_T, WALL_T);     // bottom
+  addWall(-HS, 0, WALL_T, HS * 2 + WALL_T);    // left
+  addWall(HS, 0, WALL_T, HS * 2 + WALL_T);     // right
+
+  // Inner walls with door gaps
+  // Horizontal center wall (gap in the middle for hallway)
+  addWall(-3.2, 0, 4.4, WALL_T);   // left part
+  addWall(3.2, 0, 4.4, WALL_T);    // right part
+
+  // Vertical center wall (gap in the middle for hallway)
+  addWall(0, -3.2, WALL_T, 4.4);   // top part
+  addWall(0, 3.2, WALL_T, 4.4);    // bottom part
+
+  // ── LEDs: 2 per room (yellow glowing spheres) ──
+  const ledPositions = [
+    // Room 1
+    { x: -3.8, z: -3.8 }, { x: -1.8, z: -1.8 },
+    // Room 2
+    { x: 1.8, z: -3.8 },  { x: 3.8, z: -1.8 },
+    // Room 3
+    { x: -3.8, z: 1.8 },  { x: -1.8, z: 3.8 },
+    // Room 4
+    { x: 1.8, z: 1.8 },   { x: 3.8, z: 3.8 },
+  ];
+
+  const ledGeo = new THREE.SphereGeometry(0.22, 12, 12);
+  const ledMat = new THREE.MeshBasicMaterial({ color: 0xffcc44 });
+
+  ledPositions.forEach((lp) => {
+    const led = new THREE.Mesh(ledGeo, ledMat.clone());
+    led.position.set(lp.x, 0.4, lp.z);
+    houseGroup.add(led);
+    ledMeshes.push(led);
+
+    const light = new THREE.PointLight(0xffcc44, 0.4, 3);
+    light.position.set(lp.x, 0.6, lp.z);
+    houseGroup.add(light);
+    ledLights.push(light);
+  });
+
+  // ── PIR Motion Sensor (red cone, center-top area) ──
+  const pirGeo = new THREE.ConeGeometry(0.3, 0.5, 8);
+  const pirMat = new THREE.MeshPhongMaterial({ color: 0xff4466, emissive: 0xff2244, emissiveIntensity: 0.4 });
+  pirMesh = new THREE.Mesh(pirGeo, pirMat);
+  pirMesh.position.set(0, 0.5, -4.8);
+  pirMesh.rotation.x = Math.PI; // upside down cone
+  houseGroup.add(pirMesh);
+  const pirLight = new THREE.PointLight(0xff4466, 0.3, 4);
+  pirLight.position.set(0, 0.8, -4.8);
+  houseGroup.add(pirLight);
+
+  // ── LDR Light Sensor (green sphere, near outer wall) ──
+  const ldrGeo = new THREE.SphereGeometry(0.25, 12, 12);
+  const ldrMat = new THREE.MeshPhongMaterial({ color: 0x44ff88, emissive: 0x22ff66, emissiveIntensity: 0.4 });
+  ldrMesh = new THREE.Mesh(ldrGeo, ldrMat);
+  ldrMesh.position.set(-4.8, 0.4, 0);
+  houseGroup.add(ldrMesh);
+  const ldrLight = new THREE.PointLight(0x44ff88, 0.3, 4);
+  ldrLight.position.set(-4.8, 0.6, 0);
+  houseGroup.add(ldrLight);
+
+  // ── Buzzer (purple octahedron, near entrance) ──
+  const buzGeo = new THREE.OctahedronGeometry(0.28, 0);
+  const buzMat = new THREE.MeshPhongMaterial({ color: 0xaa66ff, emissive: 0x8844dd, emissiveIntensity: 0.4 });
+  buzMesh = new THREE.Mesh(buzGeo, buzMat);
+  buzMesh.position.set(4.8, 0.45, 0);
+  houseGroup.add(buzMesh);
+  const buzLight = new THREE.PointLight(0xaa66ff, 0.3, 4);
+  buzLight.position.set(4.8, 0.6, 0);
+  houseGroup.add(buzLight);
+
+  // ── Room labels using sprite textures ──
+  function createLabel(text, x, z, color) {
+    const canvas2d = document.createElement('canvas');
+    canvas2d.width = 256;
+    canvas2d.height = 64;
+    const ctx = canvas2d.getContext('2d');
+    ctx.font = 'bold 28px Outfit, sans-serif';
+    ctx.fillStyle = color || '#ffffff';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(text, 128, 32);
+
+    const tex = new THREE.CanvasTexture(canvas2d);
+    const spriteMat = new THREE.SpriteMaterial({ map: tex, transparent: true, opacity: 0.7 });
+    const sprite = new THREE.Sprite(spriteMat);
+    sprite.position.set(x, 0.8, z);
+    sprite.scale.set(2.5, 0.65, 1);
+    houseGroup.add(sprite);
+  }
+
+  createLabel('Room 1', -2.8, -2.8, '#6ec6ff');
+  createLabel('Room 2', 2.8, -2.8, '#6ec6ff');
+  createLabel('Room 3', -2.8, 2.8, '#6ec6ff');
+  createLabel('Room 4', 2.8, 2.8, '#6ec6ff');
+
+  // LED labels (small "LED" tags)
+  function createSmallLabel(text, x, z, color) {
+    const c = document.createElement('canvas');
+    c.width = 128; c.height = 40;
+    const ctx = c.getContext('2d');
+    ctx.font = 'bold 18px Outfit, sans-serif';
+    ctx.fillStyle = color || '#ffcc44';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(text, 64, 20);
+    const tex = new THREE.CanvasTexture(c);
+    const mat = new THREE.SpriteMaterial({ map: tex, transparent: true, opacity: 0.6 });
+    const s = new THREE.Sprite(mat);
+    s.position.set(x, 1.1, z);
+    s.scale.set(1.2, 0.4, 1);
+    houseGroup.add(s);
+  }
+
+  // Label each LED
+  for (let i = 0; i < 8; i++) {
+    const room = Math.floor(i / 2) + 1;
+    const ledNum = (i % 2) + 1;
+    createSmallLabel(`LED ${ledNum}`, ledPositions[i].x, ledPositions[i].z, '#ffdd66');
+  }
+
+  // Label sensors
+  createSmallLabel('PIR', 0, -4.8, '#ff6688');
+  createSmallLabel('LDR', -4.8, 0, '#66ffaa');
+  createSmallLabel('Buzzer', 4.8, 0, '#bb88ff');
+
+  houseScene.add(houseGroup);
 }
 
-// Front windows
-houseGroup.add(createWindow(-2.2, 0.3, 3.08, 0));
-houseGroup.add(createWindow(2.2, 0.3, 3.08, 0));
-// Side windows
-houseGroup.add(createWindow(3.55, 0.3, 0, Math.PI / 2));
-houseGroup.add(createWindow(-3.55, 0.3, 0, Math.PI / 2));
-
-// Chimney
-const chimneyGeo = new THREE.BoxGeometry(0.8, 2, 0.8);
-const chimneyMat = new THREE.MeshPhongMaterial({ color: 0x7a4a3a });
-const chimney = new THREE.Mesh(chimneyGeo, chimneyMat);
-chimney.position.set(2.2, 4, -1);
-chimney.castShadow = true;
-houseGroup.add(chimney);
-
-// ── Phone model ──
-const phoneGroup = new THREE.Group();
-// Body
-const phoneMat = new THREE.MeshPhongMaterial({ color: 0x1a1a2e, shininess: 60 });
-const phoneBody = new THREE.Mesh(new THREE.BoxGeometry(1.6, 3, 0.15), phoneMat);
-phoneBody.castShadow = true;
-phoneGroup.add(phoneBody);
-// Screen
-const screenMat = new THREE.MeshPhongMaterial({ color: 0x111133, emissive: 0x1a3a6a, emissiveIntensity: 0.6 });
-const screen = new THREE.Mesh(new THREE.BoxGeometry(1.35, 2.6, 0.02), screenMat);
-screen.position.z = 0.085;
-phoneGroup.add(screen);
-// Screen app glow
-const screenGlow = new THREE.PointLight(0x3b82f6, 0.5, 5);
-screenGlow.position.set(0, 0, 0.5);
-phoneGroup.add(screenGlow);
-// Camera dot
-const camDot = new THREE.Mesh(new THREE.SphereGeometry(0.06, 8, 8), new THREE.MeshPhongMaterial({ color: 0x333355 }));
-camDot.position.set(0, 1.15, 0.085);
-phoneGroup.add(camDot);
-
-phoneGroup.position.set(6.5, 0.5, 2);
-phoneGroup.rotation.y = -0.3;
-phoneGroup.rotation.z = 0.1;
-
-// ── Bluetooth wave particles ──
-const BT_PARTICLE_COUNT = 60;
-const btGeo = new THREE.BufferGeometry();
-const btPos = new Float32Array(BT_PARTICLE_COUNT * 3);
-const btData = [];
-for (let i = 0; i < BT_PARTICLE_COUNT; i++) {
-  btData.push({ t: Math.random(), speed: 0.003 + Math.random() * 0.006, offset: (Math.random() - 0.5) * 1.2 });
-  btPos[i * 3] = 0; btPos[i * 3 + 1] = 0; btPos[i * 3 + 2] = 0;
-}
-btGeo.setAttribute('position', new THREE.BufferAttribute(btPos, 3));
-const btMat = new THREE.PointsMaterial({ size: 0.12, color: 0x3b82f6, transparent: true, opacity: 0.8, blending: THREE.AdditiveBlending, sizeAttenuation: true });
-const btParticles = new THREE.Points(btGeo, btMat);
-
-// Bluetooth symbol floating between
-const btSymbolGroup = new THREE.Group();
-// Simple BT icon using lines
-const btLineMat = new THREE.LineBasicMaterial({ color: 0x3b82f6, transparent: true, opacity: 0.9 });
-const btShape = new THREE.BufferGeometry();
-const btVerts = new Float32Array([
-  0, -0.5, 0,   0.3, -0.2, 0,   0, 0.1, 0,   -0.3, -0.2, 0,   0, -0.5, 0,
-  0, 0.5, 0,   -0.3, 0.2, 0,   0, -0.1, 0,   0.3, 0.2, 0,   0, 0.5, 0,
-]);
-btShape.setAttribute('position', new THREE.BufferAttribute(btVerts, 3));
-const btIcon = new THREE.Line(btShape, btLineMat);
-btIcon.scale.set(1.5, 1.5, 1.5);
-btSymbolGroup.add(btIcon);
-// Glow sphere around BT icon
-const btGlow = new THREE.Mesh(
-  new THREE.SphereGeometry(0.6, 16, 16),
-  new THREE.MeshBasicMaterial({ color: 0x3b82f6, transparent: true, opacity: 0.08 })
-);
-btSymbolGroup.add(btGlow);
-btSymbolGroup.position.set(3.2, 1.5, 2.5);
-
-// Add everything to scene
-houseScene.add(houseGroup);
-houseScene.add(phoneGroup);
-houseScene.add(btParticles);
-houseScene.add(btSymbolGroup);
-
-houseCamera.position.set(5, 5, 14);
-houseCamera.lookAt(1.5, 0, 0);
-
-// Resize house canvas
+// ── Resize house canvas ──
 function resizeHouseCanvas() {
-  const slide = houseCanvas.parentElement;
-  if (!slide) return;
-  const w = slide.clientWidth;
-  const h = slide.clientHeight;
+  if (!houseCanvas || !houseRenderer) return;
+  const container = houseCanvas.parentElement;
+  if (!container) return;
+  const w = container.clientWidth;
+  const h = container.clientHeight;
   houseRenderer.setSize(w, h);
   houseCamera.aspect = w / h;
   houseCamera.updateProjectionMatrix();
 }
 resizeHouseCanvas();
 
-// ──── Mouse tracking ────
+// ──── Mouse ────
 let mouseX = 0, mouseY = 0, tMouseX = 0, tMouseY = 0;
 document.addEventListener('mousemove', (e) => {
   tMouseX = (e.clientX / window.innerWidth - 0.5) * 2;
   tMouseY = (e.clientY / window.innerHeight - 0.5) * 2;
 });
 
-// ──── Animation Loop ────
+// ──── ANIMATION ────
 let time = 0;
+let currentSlide = 0;
 const slideColors = [
   { primary: 0x00e5ff, secondary: 0xa855f7 },
   { primary: 0x3b82f6, secondary: 0x14b8a6 },
@@ -251,7 +256,6 @@ const slideColors = [
   { primary: 0x54c5f8, secondary: 0x4ade80 },
 ];
 let currentColorTarget = slideColors[0];
-let currentSlide = 0;
 
 function animate() {
   requestAnimationFrame(animate);
@@ -259,9 +263,9 @@ function animate() {
   mouseX += (tMouseX - mouseX) * 0.02;
   mouseY += (tMouseY - mouseY) * 0.02;
 
-  // ── Background particles ──
-  particlesMesh.rotation.y = time * 0.3 + mouseX * 0.1;
-  particlesMesh.rotation.x = mouseY * 0.05;
+  // Background particles
+  particlesMesh.rotation.y = time * 0.25 + mouseX * 0.08;
+  particlesMesh.rotation.x = mouseY * 0.04;
   const pp = pGeo.attributes.position.array;
   for (let i = 0; i < PARTICLE_COUNT * 3; i += 3) {
     pp[i] += pVel[i]; pp[i+1] += pVel[i+1]; pp[i+2] += pVel[i+2];
@@ -271,53 +275,37 @@ function animate() {
   }
   pGeo.attributes.position.needsUpdate = true;
 
-  // Floaters
-  floaters.forEach(o => {
-    o.rotation.x += o.userData.rx;
-    o.rotation.y += o.userData.ry;
-    o.position.y = o.userData.baseY + Math.sin(time * 400 * o.userData.fS) * o.userData.fA;
-  });
-
   // Color lerp
-  const cpc = new THREE.Color(pMat.color);
-  cpc.lerp(new THREE.Color(currentColorTarget.primary), 0.02);
-  pMat.color = cpc;
+  const c = new THREE.Color(pMat.color);
+  c.lerp(new THREE.Color(currentColorTarget.primary), 0.02);
+  pMat.color = c;
 
   bgRenderer.render(bgScene, bgCamera);
 
-  // ── 3D House scene (only render when slide 0 active) ──
-  if (currentSlide === 0) {
-    // Gentle house rotation with mouse influence
-    houseGroup.rotation.y = Math.sin(time * 80) * 0.15 + mouseX * 0.2;
+  // House scene (slide 0 only)
+  if (currentSlide === 0 && houseRenderer) {
+    // Gentle tilt with mouse
+    houseGroup.rotation.y = mouseX * 0.15;
     houseGroup.rotation.x = mouseY * 0.05;
 
-    // Phone gentle float
-    phoneGroup.position.y = 0.5 + Math.sin(time * 500) * 0.3;
-    phoneGroup.rotation.z = 0.1 + Math.sin(time * 300) * 0.03;
+    // LED pulse glow
+    const pulse = 0.6 + Math.sin(time * 600) * 0.35;
+    ledMeshes.forEach((led) => {
+      led.material.opacity = pulse;
+    });
+    ledLights.forEach((l) => {
+      l.intensity = 0.2 + Math.sin(time * 600) * 0.2;
+    });
 
-    // BT symbol pulse and float
-    const btScale = 1 + Math.sin(time * 600) * 0.15;
-    btSymbolGroup.scale.set(btScale, btScale, btScale);
-    btSymbolGroup.position.y = 1.5 + Math.sin(time * 400) * 0.3;
-    btSymbolGroup.rotation.y += 0.008;
-
-    // BT particles flowing from house to phone
-    const btPositions = btGeo.attributes.position.array;
-    const startPos = { x: 2.5, y: 1, z: 2.5 };  // near house
-    const endPos = { x: 6.5, y: 0.5, z: 2 };     // near phone
-    for (let i = 0; i < BT_PARTICLE_COUNT; i++) {
-      const d = btData[i];
-      d.t += d.speed;
-      if (d.t > 1) d.t -= 1;
-      const t = d.t;
-      btPositions[i * 3]     = startPos.x + (endPos.x - startPos.x) * t + Math.sin(t * Math.PI * 3 + d.offset) * 0.3;
-      btPositions[i * 3 + 1] = startPos.y + (endPos.y - startPos.y) * t + Math.sin(t * Math.PI * 2) * 0.5 + d.offset * 0.3;
-      btPositions[i * 3 + 2] = startPos.z + (endPos.z - startPos.z) * t + Math.cos(t * Math.PI * 3 + d.offset) * 0.2;
+    // PIR sensor rotation
+    if (pirMesh) pirMesh.rotation.y += 0.015;
+    // Buzzer rotation
+    if (buzMesh) buzMesh.rotation.y += 0.01;
+    // LDR gentle scale pulse
+    if (ldrMesh) {
+      const s = 1 + Math.sin(time * 400) * 0.15;
+      ldrMesh.scale.set(s, s, s);
     }
-    btGeo.attributes.position.needsUpdate = true;
-
-    // Window glow flicker
-    windowMat.emissiveIntensity = 0.6 + Math.sin(time * 800) * 0.1;
 
     houseRenderer.render(houseScene, houseCamera);
   }
@@ -331,7 +319,6 @@ window.addEventListener('resize', () => {
   bgRenderer.setSize(window.innerWidth, window.innerHeight);
   resizeHouseCanvas();
 });
-
 
 // ──── SLIDE NAVIGATION ────
 const slides = document.querySelectorAll('.slide');
@@ -384,7 +371,6 @@ function goToSlide(index) {
     nextEl.style.transform = 'translateX(-80px) rotateY(5deg) scale(0.95)';
     nextEl.classList.remove('exit-left');
   }
-
   void nextEl.offsetWidth;
   nextEl.classList.add('active');
   nextEl.style.transform = '';
@@ -417,12 +403,11 @@ document.addEventListener('wheel', (e) => {
   setTimeout(() => { scrollCD = false; }, 1000);
 }, { passive: true });
 
-let tStartX = 0, tStartY = 0;
-document.addEventListener('touchstart', (e) => { tStartX = e.changedTouches[0].screenX; tStartY = e.changedTouches[0].screenY; }, { passive: true });
+let tStartX = 0;
+document.addEventListener('touchstart', (e) => { tStartX = e.changedTouches[0].screenX; }, { passive: true });
 document.addEventListener('touchend', (e) => {
   const dx = e.changedTouches[0].screenX - tStartX;
-  const dy = e.changedTouches[0].screenY - tStartY;
-  if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 60) { dx < 0 ? nextSlide() : prevSlide(); }
+  if (Math.abs(dx) > 60) { dx < 0 ? nextSlide() : prevSlide(); }
 }, { passive: true });
 
 updateUI();
