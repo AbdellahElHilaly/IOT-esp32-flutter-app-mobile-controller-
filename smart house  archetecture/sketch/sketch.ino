@@ -8,6 +8,7 @@ const int LED_PINS[8] = {13, 12, 14, 27, 26, 25, 33, 32};
 const int PIR_PIN = 15;
 const int LDR_PIN = 34;
 const int BUZZER_PIN = 4;
+const int WAVE_SEQUENCE[8] = {0, 1, 6, 7, 2, 3, 4, 5};
 
 unsigned long lastTelemetryTime = 0;
 const unsigned long TELEMETRY_INTERVAL = 1000;
@@ -154,14 +155,16 @@ void runSelectedAnimation() {
       lastAnimUpdate = now;
       for (int attempts = 0; attempts < 8; attempts++) {
         animStep = (animStep + 1) % 8;
-        int r = animStep / 2;
+        int ledIdx = WAVE_SEQUENCE[animStep];
+        int r = ledIdx / 2;
         if ((selectedRoomsMask >> r) & 1) {
           break;
         }
       }
+      int activeLed = WAVE_SEQUENCE[animStep];
       for (int i = 0; i < 8; i++) {
         int r = i / 2;
-        if (((selectedRoomsMask >> r) & 1) && (i == animStep)) {
+        if (((selectedRoomsMask >> r) & 1) && (i == activeLed)) {
           digitalWrite(LED_PINS[i], HIGH);
         } else {
           digitalWrite(LED_PINS[i], LOW);

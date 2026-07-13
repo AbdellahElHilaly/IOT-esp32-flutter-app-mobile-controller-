@@ -150,18 +150,21 @@ void runSelectedAnimation() {
   }
 
   if (selectedAnimation == 0) {
-    if (now - lastAnimUpdate >= 250) {
+    if (now - lastAnimUpdate >= 150) {
       lastAnimUpdate = now;
-      animStep = (animStep + 1) % 4;
-      for (int r = 0; r < 4; r++) {
-        if (((selectedRoomsMask >> r) & 1)) {
-          if (r == animStep) {
-            digitalWrite(LED_PINS[r * 2], HIGH);
-            digitalWrite(LED_PINS[r * 2 + 1], HIGH);
-          } else {
-            digitalWrite(LED_PINS[r * 2], LOW);
-            digitalWrite(LED_PINS[r * 2 + 1], LOW);
-          }
+      for (int attempts = 0; attempts < 8; attempts++) {
+        animStep = (animStep + 1) % 8;
+        int r = animStep / 2;
+        if ((selectedRoomsMask >> r) & 1) {
+          break;
+        }
+      }
+      for (int i = 0; i < 8; i++) {
+        int r = i / 2;
+        if (((selectedRoomsMask >> r) & 1) && (i == animStep)) {
+          digitalWrite(LED_PINS[i], HIGH);
+        } else {
+          digitalWrite(LED_PINS[i], LOW);
         }
       }
     }
