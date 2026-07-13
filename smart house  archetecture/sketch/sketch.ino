@@ -204,6 +204,25 @@ void runSelectedAnimation() {
         }
       }
     }
+  } else if (selectedAnimation == 4) {
+    if (now - lastAnimUpdate >= 150) {
+      lastAnimUpdate = now;
+      for (int attempts = 0; attempts < 8; attempts++) {
+        animStep = (animStep + 1) % 8;
+        int ledIdx = WAVE_SEQUENCE[animStep];
+        int r = ledIdx / 2;
+        if ((selectedRoomsMask >> r) & 1) {
+          break;
+        }
+      }
+      int offLed = WAVE_SEQUENCE[animStep];
+      for (int i = 0; i < 8; i++) {
+        int r = i / 2;
+        if ((selectedRoomsMask >> r) & 1) {
+          digitalWrite(LED_PINS[i], (i == offLed) ? LOW : HIGH);
+        }
+      }
+    }
   }
 }
 

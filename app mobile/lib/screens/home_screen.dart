@@ -1570,6 +1570,12 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         'icon': Icons.sync_alt_rounded,
         'color': const Color(0xFF4AE183),
       },
+      {
+        'title': 'Snake Circle',
+        'description': 'All ON, one gap circles around',
+        'icon': Icons.rotate_right_rounded,
+        'color': const Color(0xFF9B59B6),
+      },
     ];
 
     return Column(
