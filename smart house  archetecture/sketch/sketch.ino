@@ -8,7 +8,7 @@ const int LED_PINS[8] = {13, 12, 14, 27, 26, 25, 33, 32};
 const int PIR_PIN = 15;
 const int LDR_PIN = 34;
 const int BUZZER_PIN = 4;
-const int WAVE_SEQUENCE[8] = {0, 1, 6, 7, 2, 3, 4, 5};
+const int WAVE_SEQUENCE[8] = {2, 5, 3, 6, 7, 1, 4, 0};
 
 unsigned long lastTelemetryTime = 0;
 const unsigned long TELEMETRY_INTERVAL = 1000;
@@ -122,7 +122,7 @@ void runAutoLEDs() {
       }
     } else if (ledsMode == 1) {
       for (int i = 0; i < 8; i++) {
-        if (i % 2 == 0) {
+        if (i == 2 || i == 3 || i == 4 || i == 7) {
           digitalWrite(LED_PINS[i], HIGH);
         } else {
           digitalWrite(LED_PINS[i], LOW);
