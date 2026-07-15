@@ -34,60 +34,51 @@ if (houseCanvas) {
 
   houseGroup = new THREE.Group();
 
-  // ── Room layout (2×2 grid) ──
-  const ROOM_SIZE = 5;
+  // ── Single open-plan rectangle ──
   const WALL_H = 1.0;
   const WALL_T = 0.15;
-  const HS = 5.4;
+  const HW = 7;  // half-width
+  const HD = 5;  // half-depth
 
-  const roomCenters = [
-    { x: -2.8, z: -2.8 },  // Room 1
-    { x:  2.8, z: -2.8 },  // Room 2
-    { x: -2.8, z:  2.8 },  // Room 3
-    { x:  2.8, z:  2.8 },  // Room 4
-  ];
+  // Single floor
+  const floor = new THREE.Mesh(
+    new THREE.BoxGeometry(HW * 2 - 0.2, 0.08, HD * 2 - 0.2),
+    new THREE.MeshPhongMaterial({ color: 0xe2e8f0, shininess: 10 })
+  );
+  floor.position.set(0, 0, 0);
+  houseGroup.add(floor);
 
-  // Floor tiles — soft distinct colors
-  const roomFloorColors = [0xdbeafe, 0xfce7f3, 0xd1fae5, 0xfef3c7];
-  roomCenters.forEach((rc, i) => {
-    const floor = new THREE.Mesh(
-      new THREE.BoxGeometry(ROOM_SIZE - 0.2, 0.08, ROOM_SIZE - 0.2),
-      new THREE.MeshPhongMaterial({ color: roomFloorColors[i], shininess: 10 })
-    );
-    floor.position.set(rc.x, 0, rc.z);
-    houseGroup.add(floor);
-  });
-
-  // Walls — light gray
+  // Walls — outer only
   const wallMat = new THREE.MeshPhongMaterial({ color: 0x94a3b8, shininess: 20 });
-
   function addWall(x, z, w, d) {
     const wall = new THREE.Mesh(new THREE.BoxGeometry(w, WALL_H, d), wallMat);
     wall.position.set(x, WALL_H / 2, z);
     houseGroup.add(wall);
   }
+  addWall(0, -HD, HW * 2 + WALL_T, WALL_T);  // top
+  addWall(0, HD, HW * 2 + WALL_T, WALL_T);   // bottom
+  addWall(-HW, 0, WALL_T, HD * 2 + WALL_T);  // left
+  addWall(HW, 0, WALL_T, HD * 2 + WALL_T);   // right
 
-  // Outer walls
-  addWall(0, -HS, HS * 2 + WALL_T, WALL_T);
-  addWall(0, HS, HS * 2 + WALL_T, WALL_T);
-  addWall(-HS, 0, WALL_T, HS * 2 + WALL_T);
-  addWall(HS, 0, WALL_T, HS * 2 + WALL_T);
-
-  // Inner walls with door gaps
-  addWall(-3.2, 0, 4.4, WALL_T);
-  addWall(3.2, 0, 4.4, WALL_T);
-  addWall(0, -3.2, WALL_T, 4.4);
-  addWall(0, 3.2, WALL_T, 4.4);
-
-  // ── LEDs (2 per room) ──
+  // ── LEDs positioned to match physical layout ──
+  // User's layout (index 0-7 = LED 1-8):
+  //   LED3(idx2)---LED6(idx5)---LED4(idx3)   <- top
+  //   LED1(idx0)               LED7(idx6)    <- middle
+  //   LED5(idx4)---LED2(idx1)---LED8(idx7)   <- bottom
+  const W = HW - 0.8;
+  const D = HD - 0.8;
   const ledPositions = [
-    { x: -3.8, z: -3.8 }, { x: -1.8, z: -1.8 },
-    { x: 1.8, z: -3.8 },  { x: 3.8, z: -1.8 },
-    { x: -3.8, z: 1.8 },  { x: -1.8, z: 3.8 },
-    { x: 1.8, z: 1.8 },   { x: 3.8, z: 3.8 },
+    { x: -W, z:  0   },  // LED1 — left center
+    { x:  0, z:  D   },  // LED2 — bottom center
+    { x: -W, z: -D   },  // LED3 — top-left corner
+    { x:  W, z: -D   },  // LED4 — top-right corner
+    { x: -W, z:  D   },  // LED5 — bottom-left corner
+    { x:  0, z: -D   },  // LED6 — top center
+    { x:  W, z:  0   },  // LED7 — right center
+    { x:  W, z:  D   },  // LED8 — bottom-right corner
   ];
 
-  const ledGeo = new THREE.SphereGeometry(0.22, 12, 12);
+  const ledGeo = new THREE.SphereGeometry(0.25, 12, 12);
   ledPositions.forEach((lp) => {
     const led = new THREE.Mesh(ledGeo, new THREE.MeshBasicMaterial({ color: 0xeab308 }));
     led.position.set(lp.x, 0.35, lp.z);
@@ -100,38 +91,38 @@ if (houseCanvas) {
     ledLights.push(light);
   });
 
-  // ── PIR (red cone, top wall) ──
+  // ── PIR (red cone, outside top wall center) ──
   pirMesh = new THREE.Mesh(
     new THREE.ConeGeometry(0.28, 0.5, 8),
     new THREE.MeshPhongMaterial({ color: 0xef4444, emissive: 0xef4444, emissiveIntensity: 0.3 })
   );
-  pirMesh.position.set(0, 0.5, -4.8);
+  pirMesh.position.set(0, 0.5, -(HD + 1));
   pirMesh.rotation.x = Math.PI;
   houseGroup.add(pirMesh);
   const pirLight = new THREE.PointLight(0xef4444, 0.25, 3);
-  pirLight.position.set(0, 0.8, -4.8);
+  pirLight.position.set(0, 0.8, -(HD + 1));
   houseGroup.add(pirLight);
 
-  // ── LDR (green sphere, left wall) ──
+  // ── LDR (green sphere, outside left wall) ──
   ldrMesh = new THREE.Mesh(
     new THREE.SphereGeometry(0.24, 12, 12),
     new THREE.MeshPhongMaterial({ color: 0x22c55e, emissive: 0x22c55e, emissiveIntensity: 0.3 })
   );
-  ldrMesh.position.set(-4.8, 0.4, 0);
+  ldrMesh.position.set(-(HW + 1), 0.4, 0);
   houseGroup.add(ldrMesh);
   const ldrLight = new THREE.PointLight(0x22c55e, 0.25, 3);
-  ldrLight.position.set(-4.8, 0.6, 0);
+  ldrLight.position.set(-(HW + 1), 0.6, 0);
   houseGroup.add(ldrLight);
 
-  // ── Buzzer (purple octahedron, right wall) ──
+  // ── Buzzer (purple octahedron, outside right wall) ──
   buzMesh = new THREE.Mesh(
     new THREE.OctahedronGeometry(0.26, 0),
     new THREE.MeshPhongMaterial({ color: 0x8b5cf6, emissive: 0x8b5cf6, emissiveIntensity: 0.3 })
   );
-  buzMesh.position.set(4.8, 0.42, 0);
+  buzMesh.position.set(HW + 1, 0.42, 0);
   houseGroup.add(buzMesh);
   const buzLight = new THREE.PointLight(0x8b5cf6, 0.25, 3);
-  buzLight.position.set(4.8, 0.6, 0);
+  buzLight.position.set(HW + 1, 0.6, 0);
   houseGroup.add(buzLight);
 
   // ── Labels ──
@@ -168,18 +159,18 @@ if (houseCanvas) {
     houseGroup.add(s);
   }
 
-  makeLabel('Room 1', -2.8, -2.8, '#2563eb');
-  makeLabel('Room 2', 2.8, -2.8, '#db2777');
-  makeLabel('Room 3', -2.8, 2.8, '#059669');
-  makeLabel('Room 4', 2.8, 2.8, '#d97706');
+  // Label center
+  makeLabel('Smart Home', 0, 0, '#2563eb');
 
+  // Label each LED (1-indexed for user)
   ledPositions.forEach((lp, i) => {
-    makeSmallLabel(`LED ${(i % 2) + 1}`, lp.x, lp.z, '#92400e');
+    makeSmallLabel(`LED ${i + 1}`, lp.x, lp.z, '#92400e');
   });
 
-  makeSmallLabel('PIR', 0, -4.8, '#dc2626');
-  makeSmallLabel('LDR', -4.8, 0, '#16a34a');
-  makeSmallLabel('Buzzer', 4.8, 0, '#7c3aed');
+  // Sensor labels
+  makeSmallLabel('PIR', 0, -(HD + 1), '#dc2626');
+  makeSmallLabel('LDR', -(HW + 1), 0, '#16a34a');
+  makeSmallLabel('Buzzer', HW + 1, 0, '#7c3aed');
 
   houseScene.add(houseGroup);
 }

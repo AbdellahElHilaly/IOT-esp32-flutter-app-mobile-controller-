@@ -11,12 +11,9 @@ void main() {
     );
 
     expect(find.text('SMART HOME'), findsOneWidget);
-    expect(find.text('2-STORY RESIDENCE'), findsOneWidget);
+    expect(find.text('RECTANGLE RESIDENCE'), findsOneWidget);
 
-    expect(find.text('Room 1'), findsOneWidget);
-    expect(find.text('Room 2'), findsOneWidget);
-    expect(find.text('Room 3'), findsOneWidget);
-    expect(find.text('Room 4'), findsOneWidget);
+    expect(find.text('OPEN-PLAN LED LAYOUT'), findsOneWidget);
 
     expect(find.text('LED 1'), findsOneWidget);
     expect(find.text('LED 8'), findsOneWidget);

@@ -508,7 +508,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         _buildAutomationCard(
           Icons.brightness_auto_rounded,
           'Light Automation',
-          'Automatically turn ON Room 1 and Room 2 LEDs when environmental light is below the run threshold.',
+          'Automatically turn ON half or all house LEDs when environmental light is below the thresholds.',
           _autoLightEnabled,
           _toggleAutoLight,
           const Color(0xFFFFA500),
@@ -993,7 +993,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               child: Padding(
                 padding: const EdgeInsets.only(top: 36.0),
                 child: Text(
-                  '2-STORY RESIDENCE',
+                  'RECTANGLE RESIDENCE',
                   style: GoogleFonts.hankenGrotesk(
                     color: Colors.white,
                     fontSize: 12,
@@ -1006,7 +1006,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           ),
         ),
         Container(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(12.0),
           decoration: BoxDecoration(
             color: Colors.white.withValues(alpha: 0.65),
             borderRadius: const BorderRadius.only(
@@ -1027,57 +1027,39 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           ),
           child: Column(
             children: [
-              _buildFloorHeader('FIRST FLOOR - BEDROOMS & GUEST ROOMS'),
-              const SizedBox(height: 12),
+              _buildFloorHeader('OPEN-PLAN LED LAYOUT'),
+              const SizedBox(height: 8),
+              // Top row: LED3 — LED6 — LED4
               Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Expanded(
-                    child: _buildRoomCard(
-                      'Room 3',
-                      'Left Upper',
-                      [4, 5],
-                      textTheme,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: _buildRoomCard(
-                      'Room 4',
-                      'Right Upper',
-                      [6, 7],
-                      textTheme,
-                    ),
-                  ),
+                  Expanded(child: _buildLedTile(2, textTheme)),
+                  const SizedBox(width: 6),
+                  Expanded(child: _buildLedTile(5, textTheme)),
+                  const SizedBox(width: 6),
+                  Expanded(child: _buildLedTile(3, textTheme)),
                 ],
               ),
-              const SizedBox(height: 20),
-              const Divider(color: Colors.white24, height: 1),
-              const SizedBox(height: 16),
-              _buildFloorHeader('GROUND FLOOR - CONTROL CENTER & LIVING ROOM'),
-              const SizedBox(height: 12),
+              const SizedBox(height: 6),
+              // Middle row: LED1 — HOME MODE — LED7
               Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Expanded(
-                    child: _buildRoomCard(
-                      'Room 1',
-                      'Left Lower',
-                      [0, 1],
-                      textTheme,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
+                  Expanded(child: _buildLedTile(0, textTheme)),
+                  const SizedBox(width: 6),
                   _buildHomeModeWidget(textTheme),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: _buildRoomCard(
-                      'Room 2',
-                      'Right Lower',
-                      [2, 3],
-                      textTheme,
-                    ),
-                  ),
+                  const SizedBox(width: 6),
+                  Expanded(child: _buildLedTile(6, textTheme)),
+                ],
+              ),
+              const SizedBox(height: 6),
+              // Bottom row: LED5 — LED2 — LED8
+              Row(
+                children: [
+                  Expanded(child: _buildLedTile(4, textTheme)),
+                  const SizedBox(width: 6),
+                  Expanded(child: _buildLedTile(1, textTheme)),
+                  const SizedBox(width: 6),
+                  Expanded(child: _buildLedTile(7, textTheme)),
                 ],
               ),
             ],
@@ -1102,52 +1084,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildRoomCard(
-    String roomName,
-    String subtitle,
-    List<int> ledIndices,
-    TextTheme textTheme,
-  ) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.5),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: Colors.white.withValues(alpha: 0.7),
-          width: 1.0,
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            roomName,
-            style: textTheme.titleMedium?.copyWith(
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 2),
-          Text(
-            subtitle,
-            style: textTheme.labelSmall?.copyWith(
-              fontSize: 9,
-              color: LuminaTheme.outlineColor,
-            ),
-          ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(child: _buildLedTile(ledIndices[0], textTheme)),
-              const SizedBox(width: 8),
-              Expanded(child: _buildLedTile(ledIndices[1], textTheme)),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
+
+
 
   Widget _buildLedTile(int index, TextTheme textTheme) {
     final config = _ledConfig[index];
@@ -1548,7 +1486,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     final List<Map<String, dynamic>> animationsList = [
       {
         'title': 'Wave Chase',
-        'description': 'Sequential room-to-room light wave',
+        'description': 'Sequential perimeter light wave',
         'icon': Icons.waves_rounded,
         'color': const Color(0xFF4A90E2),
       },
@@ -1686,16 +1624,16 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   Widget _buildAnimationRoomsSelector(TextTheme textTheme) {
     final rooms = [
-      {'id': 1, 'name': 'Room 1', 'floor': 'Ground Floor L'},
-      {'id': 2, 'name': 'Room 2', 'floor': 'Ground Floor R'},
-      {'id': 3, 'name': 'Room 3', 'floor': 'First Floor L'},
-      {'id': 4, 'name': 'Room 4', 'floor': 'First Floor R'},
+      {'id': 1, 'name': 'Zone 1', 'floor': 'LEDs 1 & 2 (Left & Bottom)'},
+      {'id': 2, 'name': 'Zone 2', 'floor': 'LEDs 3 & 4 (Top Corners)'},
+      {'id': 3, 'name': 'Zone 3', 'floor': 'LEDs 5 & 6 (Bottom-L & Top)'},
+      {'id': 4, 'name': 'Zone 4', 'floor': 'LEDs 7 & 8 (Right & Bottom-R)'},
     ];
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'TARGET ROOMS',
+          'TARGET ZONES',
           style: textTheme.labelSmall?.copyWith(
             fontSize: 11,
             letterSpacing: 1.5,
@@ -1741,7 +1679,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Icon(
-                          Icons.meeting_room_rounded,
+                          Icons.crop_free_rounded,
                           color: isSelected ? LuminaTheme.primaryColor : LuminaTheme.outlineColor,
                           size: 20,
                         ),
