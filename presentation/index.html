@@ -300,23 +300,15 @@
       color: var(--text-main);
       text-align: left;
     }
-    /* LED Overlay styling for slide 2 */
+    /* LED Overlay styling for slide 2 (Static) */
     .led-overlay {
       position: absolute;
-      width: 20px;
-      height: 20px;
+      width: 16px;
+      height: 16px;
       border-radius: 50%;
-      border: 2px solid #ffffff;
-      cursor: pointer;
+      border: 1.5px solid #ffffff;
       transform: translate(-50%, -50%);
-      box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
-      transition: all 0.3s ease;
-      animation: pulseGlow 1.8s infinite alternate;
-    }
-
-    @keyframes pulseGlow {
-      0% { transform: translate(-50%, -50%) scale(0.9); box-shadow: 0 0 8px currentColor; }
-      100% { transform: translate(-50%, -50%) scale(1.15); box-shadow: 0 0 20px currentColor; }
+      box-shadow: 0 0 8px currentColor;
     }
 
     .led-overlay.yellow {
@@ -334,31 +326,6 @@
     .led-overlay.red {
       color: #ef4444;
       background-color: rgba(239, 68, 68, 0.85);
-    }
-
-    /* Tooltip styles */
-    .led-overlay::after {
-      content: attr(data-tooltip);
-      position: absolute;
-      bottom: 26px;
-      left: 50%;
-      transform: translateX(-50%) scale(0.8);
-      background: rgba(15, 23, 42, 0.9);
-      color: #ffffff;
-      padding: 6px 12px;
-      border-radius: 8px;
-      font-size: 0.75rem;
-      white-space: nowrap;
-      pointer-events: none;
-      opacity: 0;
-      transition: all 0.2s ease;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-      z-index: 10;
-    }
-
-    .led-overlay:hover::after {
-      opacity: 1;
-      transform: translateX(-50%) scale(1);
     }
   </style>
 </head>
@@ -429,60 +396,68 @@
             La topologie physique du prototype est modélisée sous forme d'une grille 3x3. Chaque LED correspond à un GPIO de l'ESP32 et possède un emplacement précis sur la maquette.
           </p>
           <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
-            <div style="background: var(--glass-bg); padding: 8px 12px; border-radius: 10px; border: 1px solid var(--glass-border); font-size: 0.85rem;">
-              <span style="font-weight: 700; color: #f5a623;">Top-Left</span>: GP14 (Jaune)
+            <div style="background: var(--glass-bg); padding: 8px 12px; border-radius: 10px; border: 1px solid var(--glass-border); font-size: 0.85rem; display: flex; align-items: center; gap: 8px;">
+              <i class="fa-solid fa-lightbulb" style="color: #10b981;"></i>
+              <span><strong>LED 1</strong> : GP13 (Vert)</span>
             </div>
-            <div style="background: var(--glass-bg); padding: 8px 12px; border-radius: 10px; border: 1px solid var(--glass-border); font-size: 0.85rem;">
-              <span style="font-weight: 700; color: #3b82f6;">Top-Center</span>: GP25 (Bleu)
+            <div style="background: var(--glass-bg); padding: 8px 12px; border-radius: 10px; border: 1px solid var(--glass-border); font-size: 0.85rem; display: flex; align-items: center; gap: 8px;">
+              <i class="fa-solid fa-lightbulb" style="color: #10b981;"></i>
+              <span><strong>LED 2</strong> : GP12 (Vert)</span>
             </div>
-            <div style="background: var(--glass-bg); padding: 8px 12px; border-radius: 10px; border: 1px solid var(--glass-border); font-size: 0.85rem;">
-              <span style="font-weight: 700; color: #10b981;">Top-Right</span>: GP27 (Vert)
+            <div style="background: var(--glass-bg); padding: 8px 12px; border-radius: 10px; border: 1px solid var(--glass-border); font-size: 0.85rem; display: flex; align-items: center; gap: 8px;">
+              <i class="fa-solid fa-lightbulb" style="color: #f5a623;"></i>
+              <span><strong>LED 3</strong> : GP14 (Jaune)</span>
             </div>
-            <div style="background: var(--glass-bg); padding: 8px 12px; border-radius: 10px; border: 1px solid var(--glass-border); font-size: 0.85rem;">
-              <span style="font-weight: 700; color: #10b981;">Middle-Left</span>: GP13 (Vert)
+            <div style="background: var(--glass-bg); padding: 8px 12px; border-radius: 10px; border: 1px solid var(--glass-border); font-size: 0.85rem; display: flex; align-items: center; gap: 8px;">
+              <i class="fa-solid fa-lightbulb" style="color: #10b981;"></i>
+              <span><strong>LED 4</strong> : GP27 (Vert)</span>
             </div>
-            <div style="background: var(--glass-bg); padding: 8px 12px; border-radius: 10px; border: 1px solid var(--glass-border); font-size: 0.85rem;">
-              <span style="font-weight: 700; color: #10b981;">Middle-Right</span>: GP33 (Vert)
+            <div style="background: var(--glass-bg); padding: 8px 12px; border-radius: 10px; border: 1px solid var(--glass-border); font-size: 0.85rem; display: flex; align-items: center; gap: 8px;">
+              <i class="fa-solid fa-lightbulb" style="color: #ef4444;"></i>
+              <span><strong>LED 5</strong> : GP26 (Rouge)</span>
             </div>
-            <div style="background: var(--glass-bg); padding: 8px 12px; border-radius: 10px; border: 1px solid var(--glass-border); font-size: 0.85rem;">
-              <span style="font-weight: 700; color: #ef4444;">Bottom-Left</span>: GP26 (Rouge)
+            <div style="background: var(--glass-bg); padding: 8px 12px; border-radius: 10px; border: 1px solid var(--glass-border); font-size: 0.85rem; display: flex; align-items: center; gap: 8px;">
+              <i class="fa-solid fa-lightbulb" style="color: #3b82f6;"></i>
+              <span><strong>LED 6</strong> : GP25 (Bleu)</span>
             </div>
-            <div style="background: var(--glass-bg); padding: 8px 12px; border-radius: 10px; border: 1px solid var(--glass-border); font-size: 0.85rem;">
-              <span style="font-weight: 700; color: #10b981;">Bottom-Center</span>: GP12 (Vert)
+            <div style="background: var(--glass-bg); padding: 8px 12px; border-radius: 10px; border: 1px solid var(--glass-border); font-size: 0.85rem; display: flex; align-items: center; gap: 8px;">
+              <i class="fa-solid fa-lightbulb" style="color: #10b981;"></i>
+              <span><strong>LED 7</strong> : GP33 (Vert)</span>
             </div>
-            <div style="background: var(--glass-bg); padding: 8px 12px; border-radius: 10px; border: 1px solid var(--glass-border); font-size: 0.85rem;">
-              <span style="font-weight: 700; color: #f5a623;">Bottom-Right</span>: GP32 (Jaune)
+            <div style="background: var(--glass-bg); padding: 8px 12px; border-radius: 10px; border: 1px solid var(--glass-border); font-size: 0.85rem; display: flex; align-items: center; gap: 8px;">
+              <i class="fa-solid fa-lightbulb" style="color: #f5a623;"></i>
+              <span><strong>LED 8</strong> : GP32 (Jaune)</span>
             </div>
           </div>
         </div>
         
-        <!-- Right: Image with LED Overlay -->
+        <!-- Right: Image with LED Overlay (Static) -->
         <div style="position: relative; width: 100%; max-width: 500px; border-radius: 16px; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.12); border: 2px solid var(--glass-border); margin: 0 auto;">
           <img src="house_screens_hot.png" alt="Smart House Topology" style="width: 100%; display: block;">
           
           <!-- LED 3 (Top-Left) - GP14 (Yellow) -->
-          <div class="led-overlay yellow" style="top: 7%; left: 4.5%;" data-tooltip="LED 3: Top-Left (GPIO 14) - Jaune"></div>
+          <div class="led-overlay yellow" style="top: 7%; left: 4.5%;"></div>
           
           <!-- LED 6 (Top-Center) - GP25 (Blue) -->
-          <div class="led-overlay blue" style="top: 5.5%; left: 49.5%;" data-tooltip="LED 6: Top-Center (GPIO 25) - Bleu"></div>
+          <div class="led-overlay blue" style="top: 5.5%; left: 49.5%;"></div>
           
           <!-- LED 4 (Top-Right) - GP27 (Green) -->
-          <div class="led-overlay green" style="top: 6.5%; left: 95.5%;" data-tooltip="LED 4: Top-Right (GPIO 27) - Vert"></div>
+          <div class="led-overlay green" style="top: 6.5%; left: 95.5%;"></div>
           
           <!-- LED 1 (Mid-Left) - GP13 (Green) -->
-          <div class="led-overlay green" style="top: 56.5%; left: 4%;" data-tooltip="LED 1: Mid-Left (GPIO 13) - Vert"></div>
+          <div class="led-overlay green" style="top: 56.5%; left: 4%;"></div>
           
           <!-- LED 7 (Mid-Right) - GP33 (Green) -->
-          <div class="led-overlay green" style="top: 48%; left: 94.5%;" data-tooltip="LED 7: Mid-Right (GPIO 33) - Vert"></div>
+          <div class="led-overlay green" style="top: 48%; left: 94.5%;"></div>
           
           <!-- LED 5 (Bot-Left) - GP26 (Red) -->
-          <div class="led-overlay red" style="top: 96%; left: 8.5%;" data-tooltip="LED 5: Bot-Left (GPIO 26) - Rouge"></div>
+          <div class="led-overlay red" style="top: 96%; left: 8.5%;"></div>
           
           <!-- LED 2 (Bot-Center) - GP12 (Green) -->
-          <div class="led-overlay green" style="top: 94%; left: 51.5%;" data-tooltip="LED 2: Bot-Center (GPIO 12) - Vert"></div>
+          <div class="led-overlay green" style="top: 94%; left: 51.5%;"></div>
           
           <!-- LED 8 (Bot-Right) - GP32 (Yellow) -->
-          <div class="led-overlay yellow" style="top: 86.5%; left: 91.5%;" data-tooltip="LED 8: Bot-Right (GPIO 32) - Jaune"></div>
+          <div class="led-overlay yellow" style="top: 86.5%; left: 91.5%;"></div>
         </div>
       </div>
     </div>
