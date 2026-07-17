@@ -329,15 +329,20 @@
       color: #ef4444;
       background-color: rgba(239, 68, 68, 0.85);
     }
+    
+    /* Bluetooth slide animations */
+    @keyframes wavePulse {
+      0% { transform: scale(0.8); opacity: 0.8; }
+      100% { transform: scale(1.8); opacity: 0; }
+    }
+
+    @keyframes signalFlow {
+      0% { stroke-dashoffset: 18; }
+      100% { stroke-dashoffset: 0; }
+    }
   </style>
 </head>
 <body>
-
-  <!-- University Header -->
-  <div style="position: absolute; top: 35px; right: 8%; z-index: 100; font-size: 0.95rem; font-weight: 700; color: var(--text-sub); display: flex; align-items: center; gap: 8px;">
-    <iconify-icon icon="lucide:school" style="color: var(--primary); font-size: 1.15rem;"></iconify-icon>
-    <span>Université Mohammed V de Rabat</span>
-  </div>
 
   <!-- Slides Wrapper -->
   <div class="presentation-wrapper">
@@ -358,7 +363,7 @@
       </p>
 
       <!-- Footer for names (PPTX Style) -->
-      <div style="position: absolute; bottom: 40px; left: 8%; right: 8%; display: flex; justify-content: space-between; align-items: flex-end; border-top: 1px solid rgba(15, 23, 42, 0.08); padding-top: 25px; font-size: 0.95rem; text-align: left;">
+      <div style="position: absolute; bottom: 95px; left: 8%; right: 8%; display: flex; justify-content: space-between; align-items: flex-end; border-top: 1px solid rgba(15, 23, 42, 0.08); padding-top: 25px; font-size: 0.95rem; text-align: left;">
         <!-- Left: Presenters -->
         <div style="display: flex; flex-direction: column; gap: 8px;">
           <div style="font-size: 0.8rem; letter-spacing: 1px; text-transform: uppercase; font-weight: 700; color: var(--secondary); display: flex; align-items: center; gap: 6px;">
@@ -388,103 +393,556 @@
       <div class="slide-category">
         <iconify-icon icon="lucide:network" style="font-size: 1.25rem; vertical-align: middle; margin-right: 6px; color: var(--primary);"></iconify-icon> Structure et Topologie
       </div>
-      <h2 class="slide-title" style="margin-bottom: 20px;">Topologie de la Maison</h2>
+      <h2 class="slide-title" style="margin-bottom: 25px;">Topologie de la Maison</h2>
       
-      <!-- Single centered image with Iconify LED icons overlaid -->
-      <div style="position: relative; width: 100%; max-width: 700px; border-radius: 16px; overflow: visible; margin: 0 auto;">
-        <img src="house_screens_hot.png" alt="Smart House Topology" style="width: 100%; display: block; border-radius: 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.12); border: 2px solid var(--glass-border);">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; width: 100%; max-width: 1100px; gap: 60px; align-items: center; justify-content: center; margin-top: 10px;">
+        <!-- Left: 3x3 LEDs Diagram -->
+        <div style="display: flex; flex-direction: column; gap: 15px; align-items: center; justify-content: center;">
+          <h3 style="font-size: 1.3rem; font-weight: 700; color: var(--text-main); margin-bottom: 5px;">Mappage Physique</h3>
+          
+          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px 30px; justify-items: center; align-items: center;">
+            <!-- Row 1 -->
+            <iconify-icon icon="lucide:lightbulb" style="font-size: 3rem; color: #f5a623;"></iconify-icon>
+            <iconify-icon icon="lucide:lightbulb" style="font-size: 3rem; color: #3b82f6;"></iconify-icon>
+            <iconify-icon icon="lucide:lightbulb" style="font-size: 3rem; color: #10b981;"></iconify-icon>
+            
+            <!-- Row 2 -->
+            <iconify-icon icon="lucide:lightbulb" style="font-size: 3rem; color: #10b981;"></iconify-icon>
+            <iconify-icon icon="lucide:home" style="font-size: 3rem; color: #94a3b8;"></iconify-icon>
+            <iconify-icon icon="lucide:lightbulb" style="font-size: 3rem; color: #ef4444;"></iconify-icon>
+            
+            <!-- Row 3 -->
+            <iconify-icon icon="lucide:lightbulb" style="font-size: 3rem; color: #f5a623;"></iconify-icon>
+            <iconify-icon icon="lucide:lightbulb" style="font-size: 3rem; color: #10b981;"></iconify-icon>
+            <iconify-icon icon="lucide:lightbulb" style="font-size: 3rem; color: #f5a623;"></iconify-icon>
+          </div>
+        </div>
         
-        <!-- LED 3: Top-Left - GP14 (Yellow) -->
-        <iconify-icon icon="lucide:lightbulb" style="position: absolute; top: 4%; left: 3%; font-size: 2.2rem; color: #f5a623; transform: translate(-50%, -50%); filter: drop-shadow(0 0 6px rgba(245,166,35,0.5));"></iconify-icon>
-        
-        <!-- LED 6: Top-Center - GP25 (Blue) -->
-        <iconify-icon icon="lucide:lightbulb" style="position: absolute; top: 3%; left: 49%; font-size: 2.2rem; color: #3b82f6; transform: translate(-50%, -50%); filter: drop-shadow(0 0 6px rgba(59,130,246,0.5));"></iconify-icon>
-        
-        <!-- LED 4: Top-Right - GP27 (Green) -->
-        <iconify-icon icon="lucide:lightbulb" style="position: absolute; top: 4%; left: 96%; font-size: 2.2rem; color: #10b981; transform: translate(-50%, -50%); filter: drop-shadow(0 0 6px rgba(16,185,129,0.5));"></iconify-icon>
-        
-        <!-- LED 1: Mid-Left - GP13 (Green) -->
-        <iconify-icon icon="lucide:lightbulb" style="position: absolute; top: 55%; left: 3%; font-size: 2.2rem; color: #10b981; transform: translate(-50%, -50%); filter: drop-shadow(0 0 6px rgba(16,185,129,0.5));"></iconify-icon>
-        
-        <!-- Center: Home icon -->
-        <iconify-icon icon="lucide:home" style="position: absolute; top: 50%; left: 50%; font-size: 2.6rem; color: #94a3b8; transform: translate(-50%, -50%); filter: drop-shadow(0 0 4px rgba(148,163,184,0.4));"></iconify-icon>
-        
-        <!-- LED 7: Mid-Right - GP33 (Green) -->
-        <iconify-icon icon="lucide:lightbulb" style="position: absolute; top: 47%; left: 95%; font-size: 2.2rem; color: #10b981; transform: translate(-50%, -50%); filter: drop-shadow(0 0 6px rgba(16,185,129,0.5));"></iconify-icon>
-        
-        <!-- LED 5: Bot-Left - GP26 (Red) -->
-        <iconify-icon icon="lucide:lightbulb" style="position: absolute; top: 95%; left: 7%; font-size: 2.2rem; color: #ef4444; transform: translate(-50%, -50%); filter: drop-shadow(0 0 6px rgba(239,68,68,0.5));"></iconify-icon>
-        
-        <!-- LED 2: Bot-Center - GP12 (Green) -->
-        <iconify-icon icon="lucide:lightbulb" style="position: absolute; top: 93%; left: 51%; font-size: 2.2rem; color: #10b981; transform: translate(-50%, -50%); filter: drop-shadow(0 0 6px rgba(16,185,129,0.5));"></iconify-icon>
-        
-        <!-- LED 8: Bot-Right - GP32 (Yellow) -->
-        <iconify-icon icon="lucide:lightbulb" style="position: absolute; top: 86%; left: 92%; font-size: 2.2rem; color: #f5a623; transform: translate(-50%, -50%); filter: drop-shadow(0 0 6px rgba(245,166,35,0.5));"></iconify-icon>
+        <!-- Right: Image with 40% screen width -->
+        <div style="width: 40vw; max-width: 450px; border-radius: 16px; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.12); border: 2px solid var(--glass-border);">
+          <img src="house_screens_hot.png" alt="Smart House Topology" style="width: 100%; display: block;">
+        </div>
       </div>
     </div>
+    </div>
 
-    <!-- Slide 3: Components & Hardware (Empty for test) -->
+    <!-- Slide 3: Components & Hardware -->
     <div class="slide" data-index="2" data-speech="Nous avons utilisé divers capteurs tels que le capteur de mouvement PIR et le capteur de lumière LDR.">
       <div class="slide-category">
-        <i class="fa-solid fa-microchip"></i> Matériel & Composants
+        <iconify-icon icon="lucide:cpu" style="font-size: 1.25rem; vertical-align: middle; margin-right: 6px; color: var(--primary);"></iconify-icon> Matériel & Composants
       </div>
-      <h2 class="slide-title">Composants Électroniques</h2>
+      <h2 class="slide-title" style="margin-bottom: 25px;">Composants Électroniques</h2>
       
-      <div class="placeholder-content-box">
-        <i class="fa-solid fa-gears placeholder-icon" style="color: var(--secondary);"></i>
-        <div class="placeholder-text">Espace réservé : Spécifications des capteurs et actionneurs</div>
-        <div class="placeholder-text" style="font-size: 0.85rem;">[Ajoutez ici les icônes et caractéristiques de l'ESP32, PIR, LDR, et Buzzer]</div>
+      <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; width: 100%; max-width: 1000px; margin-top: 15px;">
+        <!-- ESP32 -->
+        <div style="background: var(--glass-bg); padding: 20px; border-radius: 16px; border: 1px solid var(--glass-border); display: flex; flex-direction: column; align-items: center; gap: 10px; box-shadow: 0 4px 12px rgba(15, 23, 42, 0.02);">
+          <iconify-icon icon="lucide:cpu" style="font-size: 3rem; color: #3b82f6;"></iconify-icon>
+          <span style="font-weight: 700; font-size: 1.1rem; color: var(--text-main);">ESP32</span>
+          <span style="font-size: 0.8rem; color: var(--text-sub); text-align: center;">Contrôleur Wi-Fi / BLE</span>
+        </div>
+        <!-- PIR -->
+        <div style="background: var(--glass-bg); padding: 20px; border-radius: 16px; border: 1px solid var(--glass-border); display: flex; flex-direction: column; align-items: center; gap: 10px; box-shadow: 0 4px 12px rgba(15, 23, 42, 0.02);">
+          <iconify-icon icon="lucide:activity" style="font-size: 3rem; color: #ef4444;"></iconify-icon>
+          <span style="font-weight: 700; font-size: 1.1rem; color: var(--text-main);">Capteur PIR</span>
+          <span style="font-size: 0.8rem; color: var(--text-sub); text-align: center;">Détection de présence</span>
+        </div>
+        <!-- LDR -->
+        <div style="background: var(--glass-bg); padding: 20px; border-radius: 16px; border: 1px solid var(--glass-border); display: flex; flex-direction: column; align-items: center; gap: 10px; box-shadow: 0 4px 12px rgba(15, 23, 42, 0.02);">
+          <iconify-icon icon="lucide:sun" style="font-size: 3rem; color: #f5a623;"></iconify-icon>
+          <span style="font-weight: 700; font-size: 1.1rem; color: var(--text-main);">LDR (Lumière)</span>
+          <span style="font-size: 0.8rem; color: var(--text-sub); text-align: center;">Luminosité ambiante</span>
+        </div>
+        <!-- Buzzer -->
+        <div style="background: var(--glass-bg); padding: 20px; border-radius: 16px; border: 1px solid var(--glass-border); display: flex; flex-direction: column; align-items: center; gap: 10px; box-shadow: 0 4px 12px rgba(15, 23, 42, 0.02);">
+          <iconify-icon icon="lucide:volume-2" style="font-size: 3rem; color: #7c3aed;"></iconify-icon>
+          <span style="font-weight: 700; font-size: 1.1rem; color: var(--text-main);">Buzzer</span>
+          <span style="font-size: 0.8rem; color: var(--text-sub); text-align: center;">Alerte sonore</span>
+        </div>
+        <!-- LEDs -->
+        <div style="background: var(--glass-bg); padding: 20px; border-radius: 16px; border: 1px solid var(--glass-border); display: flex; flex-direction: column; align-items: center; gap: 10px; box-shadow: 0 4px 12px rgba(15, 23, 42, 0.02);">
+          <iconify-icon icon="lucide:lightbulb" style="font-size: 3rem; color: #10b981;"></iconify-icon>
+          <span style="font-weight: 700; font-size: 1.1rem; color: var(--text-main);">8x LEDs</span>
+          <span style="font-size: 0.8rem; color: var(--text-sub); text-align: center;">Éclairage physique</span>
+        </div>
+        <!-- Resistors -->
+        <div style="background: var(--glass-bg); padding: 20px; border-radius: 16px; border: 1px solid var(--glass-border); display: flex; flex-direction: column; align-items: center; gap: 10px; box-shadow: 0 4px 12px rgba(15, 23, 42, 0.02);">
+          <iconify-icon icon="tabler:components" style="font-size: 3rem; color: #14b8a6;"></iconify-icon>
+          <span style="font-weight: 700; font-size: 1.1rem; color: var(--text-main);">Résistances</span>
+          <span style="font-size: 0.8rem; color: var(--text-sub); text-align: center;">Protection circuits</span>
+        </div>
+        <!-- Breadboard -->
+        <div style="background: var(--glass-bg); padding: 20px; border-radius: 16px; border: 1px solid var(--glass-border); display: flex; flex-direction: column; align-items: center; gap: 10px; box-shadow: 0 4px 12px rgba(15, 23, 42, 0.02);">
+          <iconify-icon icon="lucide:grid" style="font-size: 3rem; color: #64748b;"></iconify-icon>
+          <span style="font-weight: 700; font-size: 1.1rem; color: var(--text-main);">Breadboard</span>
+          <span style="font-size: 0.8rem; color: var(--text-sub); text-align: center;">Câblage & prototypage</span>
+        </div>
+        <!-- Carton -->
+        <div style="background: var(--glass-bg); padding: 20px; border-radius: 16px; border: 1px solid var(--glass-border); display: flex; flex-direction: column; align-items: center; gap: 10px; box-shadow: 0 4px 12px rgba(15, 23, 42, 0.02);">
+          <iconify-icon icon="lucide:box" style="font-size: 3rem; color: #d97706;"></iconify-icon>
+          <span style="font-weight: 700; font-size: 1.1rem; color: var(--text-main);">Structure</span>
+          <span style="font-size: 0.8rem; color: var(--text-sub); text-align: center;">Maquette à un étage</span>
+        </div>
       </div>
     </div>
 
-    <!-- Slide 4: Technologies Used (Empty for test) -->
+    <!-- Slide 4: Technologies Used -->
     <div class="slide" data-index="3" data-speech="Le projet utilise Flutter pour l'application mobile et C++ pour le microcontrôleur ESP32.">
       <div class="slide-category">
-        <i class="fa-solid fa-code"></i> Technologies
+        <iconify-icon icon="lucide:code-2" style="font-size: 1.25rem; vertical-align: middle; margin-right: 6px; color: var(--primary);"></iconify-icon> Technologies
       </div>
-      <h2 class="slide-title">Technologies Utilisées</h2>
+      <h2 class="slide-title" style="margin-bottom: 25px;">Technologies Utilisées</h2>
       
-      <div class="placeholder-content-box">
-        <i class="fa-solid fa-layer-group placeholder-icon" style="color: var(--accent);"></i>
-        <div class="placeholder-text">Espace réservé : Technologies de développement logicielles</div>
-        <div class="placeholder-text" style="font-size: 0.85rem;">[Ajoutez ici les technologies comme Flutter, Dart, C++, et Bluetooth Serial]</div>
+      <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; width: 100%; max-width: 1000px; margin-top: 15px;">
+        <!-- Flutter / Dart -->
+        <div style="background: var(--glass-bg); padding: 20px; border-radius: 16px; border: 1px solid var(--glass-border); display: flex; flex-direction: column; align-items: center; gap: 10px; box-shadow: 0 4px 12px rgba(15, 23, 42, 0.02);">
+          <iconify-icon icon="logos:flutter" style="font-size: 3rem;"></iconify-icon>
+          <span style="font-weight: 700; font-size: 1.1rem; color: var(--text-main); margin-top: 4px;">Flutter & Dart</span>
+          <span style="font-size: 0.8rem; color: var(--text-sub); text-align: center;">Application mobile hybride</span>
+        </div>
+        <!-- C++ -->
+        <div style="background: var(--glass-bg); padding: 20px; border-radius: 16px; border: 1px solid var(--glass-border); display: flex; flex-direction: column; align-items: center; gap: 10px; box-shadow: 0 4px 12px rgba(15, 23, 42, 0.02);">
+          <iconify-icon icon="logos:c-plusplus" style="font-size: 3rem;"></iconify-icon>
+          <span style="font-weight: 700; font-size: 1.1rem; color: var(--text-main); margin-top: 4px;">C++ / Arduino</span>
+          <span style="font-size: 0.8rem; color: var(--text-sub); text-align: center;">Programmation embarquée</span>
+        </div>
+        <!-- Arduino IDE -->
+        <div style="background: var(--glass-bg); padding: 20px; border-radius: 16px; border: 1px solid var(--glass-border); display: flex; flex-direction: column; align-items: center; gap: 10px; box-shadow: 0 4px 12px rgba(15, 23, 42, 0.02);">
+          <iconify-icon icon="logos:arduino" style="font-size: 3rem;"></iconify-icon>
+          <span style="font-weight: 700; font-size: 1.1rem; color: var(--text-main); margin-top: 4px;">Arduino IDE</span>
+          <span style="font-size: 0.8rem; color: var(--text-sub); text-align: center;">Environnement de dev</span>
+        </div>
+        <!-- Wokwi -->
+        <div style="background: var(--glass-bg); padding: 20px; border-radius: 16px; border: 1px solid var(--glass-border); display: flex; flex-direction: column; align-items: center; gap: 10px; box-shadow: 0 4px 12px rgba(15, 23, 42, 0.02);">
+          <iconify-icon icon="lucide:monitor-play" style="font-size: 3rem; color: #4CAF50;"></iconify-icon>
+          <span style="font-weight: 700; font-size: 1.1rem; color: var(--text-main); margin-top: 4px;">Wokwi</span>
+          <span style="font-size: 0.8rem; color: var(--text-sub); text-align: center;">Simulateur de circuits IoT</span>
+        </div>
+        <!-- Git -->
+        <div style="background: var(--glass-bg); padding: 20px; border-radius: 16px; border: 1px solid var(--glass-border); display: flex; flex-direction: column; align-items: center; gap: 10px; box-shadow: 0 4px 12px rgba(15, 23, 42, 0.02);">
+          <iconify-icon icon="logos:git-icon" style="font-size: 3rem;"></iconify-icon>
+          <span style="font-weight: 700; font-size: 1.1rem; color: var(--text-main); margin-top: 4px;">Git</span>
+          <span style="font-size: 0.8rem; color: var(--text-sub); text-align: center;">Gestion de version décentralisée</span>
+        </div>
+        <!-- GitHub -->
+        <div style="background: var(--glass-bg); padding: 20px; border-radius: 16px; border: 1px solid var(--glass-border); display: flex; flex-direction: column; align-items: center; gap: 10px; box-shadow: 0 4px 12px rgba(15, 23, 42, 0.02);">
+          <iconify-icon icon="lucide:github" style="font-size: 3rem; color: #181717;"></iconify-icon>
+          <span style="font-weight: 700; font-size: 1.1rem; color: var(--text-main); margin-top: 4px;">GitHub</span>
+          <span style="font-size: 0.8rem; color: var(--text-sub); text-align: center;">Hébergement & collaboration</span>
+        </div>
+        <!-- Bluetooth -->
+        <div style="background: var(--glass-bg); padding: 20px; border-radius: 16px; border: 1px solid var(--glass-border); display: flex; flex-direction: column; align-items: center; gap: 10px; box-shadow: 0 4px 12px rgba(15, 23, 42, 0.02);">
+          <iconify-icon icon="lucide:bluetooth" style="font-size: 3rem; color: #0082FC;"></iconify-icon>
+          <span style="font-weight: 700; font-size: 1.1rem; color: var(--text-main); margin-top: 4px;">Bluetooth SPP</span>
+          <span style="font-size: 0.8rem; color: var(--text-sub); text-align: center;">Liaison série sans fil</span>
+        </div>
+        <!-- JSON -->
+        <div style="background: var(--glass-bg); padding: 20px; border-radius: 16px; border: 1px solid var(--glass-border); display: flex; flex-direction: column; align-items: center; gap: 10px; box-shadow: 0 4px 12px rgba(15, 23, 42, 0.02);">
+          <iconify-icon icon="lucide:braces" style="font-size: 3rem; color: #7c3aed;"></iconify-icon>
+          <span style="font-weight: 700; font-size: 1.1rem; color: var(--text-main); margin-top: 4px;">JSON format</span>
+          <span style="font-size: 0.8rem; color: var(--text-sub); text-align: center;">Fichiers de configuration</span>
+        </div>
       </div>
     </div>
 
-    <!-- Slide 5: Features & Modes (Empty for test) -->
-    <div class="slide" data-index="4" data-speech="Trois modes principaux sont programmés : le mode manuel, le mode automatique et le mode d'animations.">
+    <!-- Slide 5: Bluetooth Connection Protocol -->
+    <div class="slide" data-index="4" data-speech="La communication s'établit via le protocole Bluetooth SPP. L'application mobile envoie des commandes série au module ESP32.">
       <div class="slide-category">
-        <i class="fa-solid fa-sliders"></i> Fonctionnalités
+        <iconify-icon icon="lucide:bluetooth" style="font-size: 1.25rem; vertical-align: middle; margin-right: 6px; color: var(--primary);"></iconify-icon> Connectivité & Communication
       </div>
-      <h2 class="slide-title">Modes de Fonctionnement</h2>
+      <h2 class="slide-title" style="margin-bottom: 25px;">Connexion Bluetooth</h2>
       
-      <div class="placeholder-content-box">
-        <i class="fa-solid fa-gamepad placeholder-icon"></i>
-        <div class="placeholder-text">Espace réservé : Interface de l'application et fonctionnalités</div>
-        <div class="placeholder-text" style="font-size: 0.85rem;">[Ajoutez ici les captures d'écran de l'application et la description des modes de contrôle]</div>
+      <!-- Flex container for the flow -->
+      <div style="display: flex; align-items: center; justify-content: center; gap: 40px; width: 100%; max-width: 900px; margin-top: 10px; margin-bottom: 25px;">
+        
+        <!-- Smartphone Mockup -->
+        <div style="width: 120px; height: 210px; border: 4px solid var(--text-main); border-radius: 20px; position: relative; background: var(--glass-bg); display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 10px 25px rgba(0,0,0,0.05);">
+          <!-- Speaker ear piece -->
+          <div style="width: 35px; height: 4px; background: var(--text-main); border-radius: 2px; position: absolute; top: 10px;"></div>
+          <!-- Screen content -->
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
+            <iconify-icon icon="lucide:smartphone" style="font-size: 2rem; color: var(--primary);"></iconify-icon>
+            <span style="font-size: 0.75rem; font-weight: 700; color: var(--text-main);">Application</span>
+            <!-- Small pulsing Bluetooth indicator inside phone -->
+            <div style="position: relative; display: flex; align-items: center; justify-content: center; margin-top: 2px;">
+              <div style="position: absolute; width: 22px; height: 22px; border-radius: 50%; background: rgba(37,99,235,0.2); animation: wavePulse 2s infinite;"></div>
+              <iconify-icon icon="lucide:bluetooth" style="font-size: 1.1rem; color: #2563eb; z-index: 2;"></iconify-icon>
+            </div>
+          </div>
+          <!-- Home button bar -->
+          <div style="width: 35px; height: 4px; background: rgba(0,0,0,0.1); border-radius: 2px; position: absolute; bottom: 8px;"></div>
+        </div>
+
+        <!-- Connection Waves Animation (Middle) -->
+        <div style="display: flex; flex-direction: column; align-items: center; width: 180px;">
+          <!-- SVG Flowing Dotted Line -->
+          <svg width="160" height="30" viewBox="0 0 160 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M10 15H150" stroke="#2563eb" stroke-width="4" stroke-linecap="round" stroke-dasharray="10 8" style="animation: signalFlow 1.2s linear infinite;" />
+          </svg>
+          <div style="font-size: 0.75rem; font-weight: 700; color: var(--primary); letter-spacing: 2px; text-transform: uppercase; margin-top: 2px;">
+            Signal BLE/SPP
+          </div>
+        </div>
+
+        <!-- Maquette Carton Mockup (Right) -->
+        <div style="width: 170px; height: 150px; border: 3px solid #d97706; border-radius: 16px; background: #fffbeb; position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 10px 25px rgba(0,0,0,0.05); padding: 10px;">
+          <!-- Roof/Carton flaps look -->
+          <div style="position: absolute; top: -8px; left: 10px; right: 10px; height: 8px; background: #b45309; border-radius: 3px 3px 0 0;"></div>
+          <!-- Inside components (ESP32 and Bluetooth antenna) -->
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 6px;">
+            <iconify-icon icon="lucide:box" style="font-size: 2rem; color: #d97706;"></iconify-icon>
+            <span style="font-size: 0.8rem; font-weight: 700; color: #b45309;">Maquette IoT</span>
+            <!-- ESP32 Bluetooth receptor -->
+            <div style="display: flex; align-items: center; gap: 4px; font-size: 0.7rem; color: #b45309; background: rgba(217,119,6,0.1); padding: 2px 6px; border-radius: 10px; margin-top: 1px;">
+              <iconify-icon icon="lucide:cpu" style="font-size: 0.85rem; color: #d97706;"></iconify-icon>
+              <span>ESP32 BT</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Protocol Banner -->
+      <div style="background: rgba(37, 99, 235, 0.05); border: 1px solid rgba(37, 99, 235, 0.15); border-radius: 16px; padding: 12px 25px; max-width: 650px; text-align: center; box-shadow: 0 4px 15px rgba(15, 23, 42, 0.01);">
+        <div style="font-size: 0.8rem; text-transform: uppercase; font-weight: 800; letter-spacing: 1.5px; color: var(--primary); margin-bottom: 4px;">
+          Protocole de Communication
+        </div>
+        <div style="font-size: 1.1rem; font-weight: 700; color: var(--text-main); margin-bottom: 4px;">
+          Bluetooth SPP (Serial Port Profile) / RFCOMM
+        </div>
+        <p style="color: var(--text-sub); font-size: 0.8rem; line-height: 1.4; margin: 0;">
+          Émulation d'une liaison série physique (RS-232) sur canal sans fil. Permet l'envoi instantané de chaînes de caractères (commands) et de topologies JSON pour contrôler les LEDs en temps réel.
+        </p>
       </div>
     </div>
 
-    <!-- Slide 6: Synchronization Engine (Empty for test) -->
-    <div class="slide" data-index="5" data-speech="Le protocole de synchronisation dynamique assure l'ordre correct des animations selon les branchements physiques.">
+    <!-- Slide 6: Configuration mapping -->
+    <div class="slide" data-index="5" data-speech="L'application permet de configurer dynamiquement le mappage des LEDs. L'utilisateur peut lier chaque LED virtuelle à un nom personnalisé, une couleur et une broche physique GPIO de l'ESP32.">
       <div class="slide-category">
-        <i class="fa-solid fa-arrows-spin"></i> Algorithme & Synchronisation
+        <iconify-icon icon="lucide:sliders" style="font-size: 1.25rem; vertical-align: middle; margin-right: 6px; color: var(--primary);"></iconify-icon> Configuration & Mappage
       </div>
-      <h2 class="slide-title">Moteur de Mappage Dynamique</h2>
+      <h2 class="slide-title" style="margin-bottom: 25px;">Mappage Dynamique des LEDs</h2>
       
-      <div class="placeholder-content-box">
-        <i class="fa-solid fa-network-wired placeholder-icon" style="color: var(--primary);"></i>
-        <div class="placeholder-text">Espace réservé : Algorithme de synchronisation</div>
-        <div class="placeholder-text" style="font-size: 0.85rem;">[Ajoutez ici le diagramme explicatif du protocole de mappage dynamique MAP]</div>
+      <div style="display: grid; grid-template-columns: 1.2fr 1fr; width: 100%; max-width: 1100px; gap: 50px; align-items: center; justify-content: center;">
+        
+        <!-- Left: Configuration Explanation & Flow -->
+        <div style="text-align: left; display: flex; flex-direction: column; gap: 20px;">
+          <div>
+            <h3 style="font-size: 1.4rem; font-weight: 700; color: var(--text-main); margin-bottom: 8px;">Flexibilité du Système</h3>
+            <p style="color: var(--text-sub); font-size: 0.95rem; line-height: 1.5; margin: 0;">
+              L'utilisateur peut reconfigurer entièrement la topologie lumineuse de la maison sans modifier le code source de l'ESP32. L'association se fait dynamiquement à travers 3 paramètres clés :
+            </p>
+          </div>
+
+          <!-- Flowchart mapping -->
+          <div style="display: flex; flex-direction: column; gap: 12px; background: rgba(255, 255, 255, 0.4); padding: 20px; border-radius: 16px; border: 1px solid var(--glass-border);">
+            <!-- Step 1 -->
+            <div style="display: flex; align-items: center; gap: 15px;">
+              <div style="width: 32px; height: 32px; border-radius: 50%; background: rgba(37,99,235,0.1); color: var(--primary); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.9rem;">1</div>
+              <div>
+                <div style="font-weight: 700; font-size: 0.95rem; color: var(--text-main);">Nom Personnalisé (Display Name)</div>
+                <div style="font-size: 0.8rem; color: var(--text-sub);">Identifier chaque LED par pièce (ex: Salon, Cuisine)</div>
+              </div>
+            </div>
+            <!-- Arrow -->
+            <iconify-icon icon="lucide:arrow-down" style="font-size: 1.2rem; color: var(--text-sub); margin-left: 10px;"></iconify-icon>
+            <!-- Step 2 -->
+            <div style="display: flex; align-items: center; gap: 15px;">
+              <div style="width: 32px; height: 32px; border-radius: 50%; background: rgba(16,185,129,0.1); color: #10b981; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.9rem;">2</div>
+              <div>
+                <div style="font-weight: 700; font-size: 0.95rem; color: var(--text-main);">Couleur Virtuelle (LED Color)</div>
+                <div style="font-size: 0.8rem; color: var(--text-sub);">Changer le code hexadécimal associé à la LED dans l'UI</div>
+              </div>
+            </div>
+            <!-- Arrow -->
+            <iconify-icon icon="lucide:arrow-down" style="font-size: 1.2rem; color: var(--text-sub); margin-left: 10px;"></iconify-icon>
+            <!-- Step 3 -->
+            <div style="display: flex; align-items: center; gap: 15px;">
+              <div style="width: 32px; height: 32px; border-radius: 50%; background: rgba(245,166,35,0.1); color: #f5a623; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.9rem;">3</div>
+              <div>
+                <div style="font-weight: 700; font-size: 0.95rem; color: var(--text-main);">Broche Physique (GPIO Pin)</div>
+                <div style="font-size: 0.8rem; color: var(--text-sub);">Mappage direct vers le port GPIO de la carte ESP32</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Right: Mobile App Screenshot -->
+        <div style="width: 250px; justify-self: center; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.15); border: 2px solid var(--glass-border);">
+          <img src="config.png" alt="Configuration mobile app interface" style="width: 100%; display: block;">
+        </div>
+        
+      </div>
+    </div>
+
+    <!-- Slide 7: Mode 1 - Manual LED Control -->
+    <div class="slide" data-index="6" data-speech="Le premier mode de fonctionnement est le mode manuel. Il permet de contrôler individuellement chaque LED physique de la maison par un simple clic sur l'interface interactive du smartphone.">
+      <div class="slide-category">
+        <iconify-icon icon="lucide:sliders" style="font-size: 1.25rem; vertical-align: middle; margin-right: 6px; color: var(--primary);"></iconify-icon> Mode Manuel (Mode 1)
+      </div>
+      <h2 class="slide-title" style="margin-bottom: 25px;">Contrôle Individuel des LEDs</h2>
+      
+      <div style="display: grid; grid-template-columns: 1.2fr 1fr; width: 100%; max-width: 1100px; gap: 50px; align-items: center; justify-content: center;">
+        
+        <!-- Left: Feature Details -->
+        <div style="text-align: left; display: flex; flex-direction: column; gap: 20px;">
+          <div>
+            <h3 style="font-size: 1.4rem; font-weight: 700; color: var(--text-main); margin-bottom: 8px;">Interface de Contrôle</h3>
+            <p style="color: var(--text-sub); font-size: 0.95rem; line-height: 1.5; margin: 0;">
+              Ce mode offre un tableau de bord intuitif permettant l'interaction directe et la surveillance en temps réel du système domotique.
+            </p>
+          </div>
+
+          <!-- Features List -->
+          <div style="display: flex; flex-direction: column; gap: 15px;">
+            <!-- Feature 1 -->
+            <div style="display: flex; align-items: flex-start; gap: 12px;">
+              <iconify-icon icon="lucide:check-circle" style="color: var(--primary); font-size: 1.3rem; margin-top: 2px;"></iconify-icon>
+              <div>
+                <div style="font-weight: 700; font-size: 0.95rem; color: var(--text-main);">Contrôle à distance (ON/OFF)</div>
+                <div style="font-size: 0.8rem; color: var(--text-sub);">Allumer ou éteindre individuellement n'importe quelle LED par simple tapotement.</div>
+              </div>
+            </div>
+            <!-- Feature 2 -->
+            <div style="display: flex; align-items: flex-start; gap: 12px;">
+              <iconify-icon icon="lucide:check-circle" style="color: var(--primary); font-size: 1.3rem; margin-top: 2px;"></iconify-icon>
+              <div>
+                <div style="font-weight: 700; font-size: 0.95rem; color: var(--text-main);">Surveillance des Capteurs (Sensors)</div>
+                <div style="font-size: 0.8rem; color: var(--text-sub);">Affichage en temps réel de la luminosité (Lux), du détecteur de mouvement et du buzzer.</div>
+              </div>
+            </div>
+            <!-- Feature 3 -->
+            <div style="display: flex; align-items: flex-start; gap: 12px;">
+              <iconify-icon icon="lucide:check-circle" style="color: var(--primary); font-size: 1.3rem; margin-top: 2px;"></iconify-icon>
+              <div>
+                <div style="font-weight: 700; font-size: 0.95rem; color: var(--text-main);">État d'Accès Sécurisé</div>
+                <div style="font-size: 0.8rem; color: var(--text-sub);">Indicateur central dynamique "HOME OPEN / LOCKED" connecté à la sécurité de l'accès.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Right: Mobile App Screenshot -->
+        <div style="width: 250px; justify-self: center; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.15); border: 2px solid var(--glass-border);">
+          <img src="mood 1 f 1.png" alt="Manual LED control mobile app interface" style="width: 100%; display: block;">
+        </div>
+        
+      </div>
+    </div>
+
+    <!-- Slide 8: Mode 1 Feature 2 - Security Alarm System -->
+    <div class="slide" data-index="7" data-speech="Le deuxième aspect du mode manuel est le système d'alarme. En cas d'intrusion détectée par le capteur PIR, l'application mobile affiche une alerte rouge critique et permet d'appeler les urgences ou d'arrêter la sirène.">
+      <div class="slide-category">
+        <iconify-icon icon="lucide:shield-alert" style="font-size: 1.25rem; vertical-align: middle; margin-right: 6px; color: #ef4444;"></iconify-icon> Système d'Alarme (Mode 1 - Securité)
+      </div>
+      <h2 class="slide-title" style="margin-bottom: 25px;">Système d'Alarme & Sécurité</h2>
+      
+      <div style="display: grid; grid-template-columns: 1.2fr 1fr; width: 100%; max-width: 1100px; gap: 50px; align-items: center; justify-content: center;">
+        
+        <!-- Left: Feature Details -->
+        <div style="text-align: left; display: flex; flex-direction: column; gap: 20px;">
+          <div>
+            <h3 style="font-size: 1.4rem; font-weight: 700; color: var(--text-main); margin-bottom: 8px;">Gestion des Intrusions</h3>
+            <p style="color: var(--text-sub); font-size: 0.95rem; line-height: 1.5; margin: 0;">
+              Le système surveille en permanence la présence d'intrus et déclenche un protocole de sécurité automatique en cas d'infraction.
+            </p>
+          </div>
+
+          <!-- Features List -->
+          <div style="display: flex; flex-direction: column; gap: 15px;">
+            <!-- Feature 1 -->
+            <div style="display: flex; align-items: flex-start; gap: 12px;">
+              <iconify-icon icon="lucide:bell-ring" style="color: #ef4444; font-size: 1.3rem; margin-top: 2px;"></iconify-icon>
+              <div>
+                <div style="font-weight: 700; font-size: 0.95rem; color: var(--text-main);">Alerte Critique Visuelle</div>
+                <div style="font-size: 0.8rem; color: var(--text-sub);">L'application bascule sur un écran rouge d'alerte maximale (Security Breach).</div>
+              </div>
+            </div>
+            <!-- Feature 2 -->
+            <div style="display: flex; align-items: flex-start; gap: 12px;">
+              <iconify-icon icon="lucide:phone-call" style="color: #ef4444; font-size: 1.3rem; margin-top: 2px;"></iconify-icon>
+              <div>
+                <div style="font-weight: 700; font-size: 0.95rem; color: var(--text-main);">Appel d'Urgence Immédiat</div>
+                <div style="font-size: 0.8rem; color: var(--text-sub);">Bouton direct d'appel d'urgence préprogrammé pour contacter les secours.</div>
+              </div>
+            </div>
+            <!-- Feature 3 -->
+            <div style="display: flex; align-items: flex-start; gap: 12px;">
+              <iconify-icon icon="lucide:volume-x" style="color: #ef4444; font-size: 1.3rem; margin-top: 2px;"></iconify-icon>
+              <div>
+                <div style="font-weight: 700; font-size: 0.95rem; color: var(--text-main);">Contrôle du Buzzer physique</div>
+                <div style="font-size: 0.8rem; color: var(--text-sub);">Désactivation manuelle de la sirène de la maison depuis l'interface mobile.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Right: Mobile App Screenshot -->
+        <div style="width: 250px; justify-self: center; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 30px rgba(239,68,68,0.15); border: 2px solid rgba(239,68,68,0.3);">
+          <img src="mood 1 f 2.png" alt="Security breach alert mobile app interface" style="width: 100%; display: block;">
+        </div>
+        
+      </div>
+    </div>
+
+    <!-- Slide 9: Mode 2 - Auto Mode -->
+    <div class="slide" data-index="8" data-speech="Le deuxième mode de fonctionnement est le mode automatique. Il utilise le capteur de lumière LDR et le capteur de présence PIR pour allumer automatiquement quatre ou huit LEDs de la maison selon des seuils réglables de luminosité et de temporisation.">
+      <div class="slide-category">
+        <iconify-icon icon="lucide:eye" style="font-size: 1.25rem; vertical-align: middle; margin-right: 6px; color: #f5a623;"></iconify-icon> Mode Automatique (Mode 2)
+      </div>
+      <h2 class="slide-title" style="margin-bottom: 25px;">Automatisation de l'Éclairage</h2>
+      
+      <div style="display: grid; grid-template-columns: 1.2fr 1fr; width: 100%; max-width: 1100px; gap: 50px; align-items: center; justify-content: center;">
+        
+        <!-- Left: Feature Details -->
+        <div style="text-align: left; display: flex; flex-direction: column; gap: 20px;">
+          <div>
+            <h3 style="font-size: 1.4rem; font-weight: 700; color: var(--text-main); margin-bottom: 8px;">Logique Intelligente</h3>
+            <p style="color: var(--text-sub); font-size: 0.95rem; line-height: 1.5; margin: 0;">
+              Le système ajuste dynamiquement l'intensité de l'éclairage de la maquette selon la lumière ambiante lue par le capteur LDR.
+            </p>
+          </div>
+
+          <!-- Features List -->
+          <div style="display: flex; flex-direction: column; gap: 15px;">
+            <!-- Feature 1 -->
+            <div style="display: flex; align-items: flex-start; gap: 12px;">
+              <iconify-icon icon="lucide:sun-dim" style="color: #f5a623; font-size: 1.3rem; margin-top: 2px;"></iconify-icon>
+              <div>
+                <div style="font-weight: 700; font-size: 0.95rem; color: var(--text-main);">Seuils de Luminosité Variables</div>
+                <div style="font-size: 0.8rem; color: var(--text-sub);">
+                  - <strong>Mode Sombre</strong> (ex: < 380 Lux) : Allumage total des 8 LEDs.<br>
+                  - <strong>Mode Semi-Sombre</strong> (ex: < 1790 Lux) : Allumage partiel de 4 LEDs.
+                </div>
+              </div>
+            </div>
+            <!-- Feature 2 -->
+            <div style="display: flex; align-items: flex-start; gap: 12px;">
+              <iconify-icon icon="lucide:timer" style="color: #f5a623; font-size: 1.3rem; margin-top: 2px;"></iconify-icon>
+              <div>
+                <div style="font-weight: 700; font-size: 0.95rem; color: var(--text-main);">Temporisation Configurable</div>
+                <div style="font-size: 0.8rem; color: var(--text-sub);">Ajustement précis du délai d'extinction (ex: 10 secondes) après détection de mouvement.</div>
+              </div>
+            </div>
+            <!-- Feature 3 -->
+            <div style="display: flex; align-items: flex-start; gap: 12px;">
+              <iconify-icon icon="lucide:toggle-right" style="color: #f5a623; font-size: 1.3rem; margin-top: 2px;"></iconify-icon>
+              <div>
+                <div style="font-weight: 700; font-size: 0.95rem; color: var(--text-main);">Activation à Distance</div>
+                <div style="font-size: 0.8rem; color: var(--text-sub);">Bouton d'activation/désactivation global de l'automatisme depuis l'interface mobile.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Right: Mobile App Screenshot -->
+        <div style="width: 250px; justify-self: center; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 30px rgba(245,166,35,0.15); border: 2px solid rgba(245,166,35,0.3);">
+          <img src="mood 2.png" alt="Auto mode mobile app interface" style="width: 100%; display: block;">
+        </div>
+        
+      </div>
+    </div>
+
+    <!-- Slide 10: Mode 3 - Animations Mode -->
+    <div class="slide" data-index="9" data-speech="Le troisième mode de fonctionnement est le mode d'animations. L'utilisateur peut lancer des motifs de chenillard ou de flashs symétriques sur un sous-ensemble sélectionné de LEDs.">
+      <div class="slide-category">
+        <iconify-icon icon="lucide:sparkles" style="font-size: 1.25rem; vertical-align: middle; margin-right: 6px; color: #a855f7;"></iconify-icon> Mode Animations (Mode 3)
+      </div>
+      <h2 class="slide-title" style="margin-bottom: 25px;">Effets Lumineux & Animations</h2>
+      
+      <div style="display: grid; grid-template-columns: 1.2fr 1fr; width: 100%; max-width: 1100px; gap: 50px; align-items: center; justify-content: center;">
+        
+        <!-- Left: Feature Details -->
+        <div style="text-align: left; display: flex; flex-direction: column; gap: 20px;">
+          <div>
+            <h3 style="font-size: 1.4rem; font-weight: 700; color: var(--text-main); margin-bottom: 8px;">Créativité Visuelle</h3>
+            <p style="color: var(--text-sub); font-size: 0.95rem; line-height: 1.5; margin: 0;">
+              Le système permet de générer des effets visuels dynamiques et d'isoler certaines zones physiques pour l'animation.
+            </p>
+          </div>
+
+          <!-- Features List -->
+          <div style="display: flex; flex-direction: column; gap: 15px;">
+            <!-- Feature 1 -->
+            <div style="display: flex; align-items: flex-start; gap: 12px;">
+              <iconify-icon icon="lucide:infinity" style="color: #a855f7; font-size: 1.3rem; margin-top: 2px;"></iconify-icon>
+              <div>
+                <div style="font-weight: 700; font-size: 0.95rem; color: var(--text-main);">Bibliothèque d'Effets</div>
+                <div style="font-size: 0.8rem; color: var(--text-sub);">
+                  Sélection d'effets préprogrammés (ex: <strong>Double Spiral</strong> pour un chenillard double, <strong>Symmetric Cross</strong>).
+                </div>
+              </div>
+            </div>
+            <!-- Feature 2 -->
+            <div style="display: flex; align-items: flex-start; gap: 12px;">
+              <iconify-icon icon="lucide:check-square" style="color: #a855f7; font-size: 1.3rem; margin-top: 2px;"></iconify-icon>
+              <div>
+                <div style="font-weight: 700; font-size: 0.95rem; color: var(--text-main);">Sélection Active des LEDs</div>
+                <div style="font-size: 0.8rem; color: var(--text-sub);">Définir interactivement via la grille quelles pièces ou LEDs participeront à la séquence d'animation.</div>
+              </div>
+            </div>
+            <!-- Feature 3 -->
+            <div style="display: flex; align-items: flex-start; gap: 12px;">
+              <iconify-icon icon="lucide:volume-2" style="color: #a855f7; font-size: 1.3rem; margin-top: 2px;"></iconify-icon>
+              <div>
+                <div style="font-weight: 700; font-size: 0.95rem; color: var(--text-main);">Synchronisation Sonore</div>
+                <div style="font-size: 0.8rem; color: var(--text-sub);">Activation du buzzer pour rythmer les impulsions lumineuses par des bips synchronisés.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Right: Mobile App Screenshot -->
+        <div style="width: 250px; justify-self: center; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 30px rgba(168,85,247,0.15); border: 2px solid rgba(168,85,247,0.3);">
+          <img src="mood 3.png" alt="Animations mode mobile app interface" style="width: 100%; display: block;">
+        </div>
+        
+      </div>
+    </div>
+
+    <!-- Slide 11: Thank You & Live Demonstration -->
+    <div class="slide" data-index="10" data-speech="Merci pour votre attention. Nous allons maintenant passer à la démonstration en direct.">
+      <div class="slide-category">
+        <iconify-icon icon="lucide:presentation" style="font-size: 1.25rem; vertical-align: middle; margin-right: 6px; color: var(--primary);"></iconify-icon> Fin de Présentation
+      </div>
+      
+      <!-- Premium Glassmorphic Card -->
+      <div style="background: var(--glass-bg); border: 2px solid var(--glass-border); border-radius: 28px; padding: 50px 70px; max-width: 750px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 30px; box-shadow: 0 15px 35px rgba(15, 23, 42, 0.05); margin-top: 15px;">
+        
+        <!-- Animated success/finish icon -->
+        <div style="display: flex; align-items: center; justify-content: center; width: 90px; height: 90px; border-radius: 50%; background: rgba(37,99,235,0.08); border: 2px solid rgba(37,99,235,0.2);">
+          <iconify-icon icon="lucide:check-circle" style="font-size: 4rem; color: var(--primary);"></iconify-icon>
+        </div>
+        
+        <div style="text-align: center; display: flex; flex-direction: column; gap: 15px;">
+          <h2 style="font-size: 3.5rem; font-weight: 800; background: linear-gradient(to right, #0f172a, #2563eb); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 0;">
+            Merci de votre attention !
+          </h2>
+          <div style="font-size: 1.5rem; font-weight: 700; color: #4b5563; margin-top: 5px; display: flex; align-items: center; justify-content: center; gap: 10px;">
+            <iconify-icon icon="lucide:play-circle" style="color: #2563eb; font-size: 1.8rem;"></iconify-icon>
+            <span>Passage à la démonstration en direct</span>
+          </div>
+        </div>
+        
       </div>
     </div>
 
   </div>
 
   <!-- HUD Control Bar -->
-  <div class="navigation-overlay" style="justify-content: center;">
-    <div class="progress-bar-container" id="indicators-container">
+  <div class="navigation-overlay" style="display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; width: 84%; left: 8%; right: 8%;">
+    <!-- Bottom Left: Module Name -->
+    <div style="font-size: 0.85rem; font-weight: 600; color: var(--text-sub); font-family: 'Outfit', sans-serif; opacity: 0.75; text-align: left; text-transform: uppercase; letter-spacing: 0.5px;">
+      Architecture avancée
+    </div>
+    
+    <!-- Center: Progress dots -->
+    <div class="progress-bar-container" id="indicators-container" style="justify-self: center;">
       <!-- Dots injected dynamically -->
+    </div>
+    
+    <!-- Bottom Right: University Name -->
+    <div style="font-size: 0.85rem; font-weight: 600; color: var(--text-sub); font-family: 'Outfit', sans-serif; opacity: 0.75; text-align: right;">
+      Université Mohammed V de Rabat
     </div>
   </div>
 
