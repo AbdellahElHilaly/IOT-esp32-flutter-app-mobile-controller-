@@ -8,6 +8,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Manrope:wght@300;400;600;700&display=swap" rel="stylesheet">
   <!-- FontAwesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Iconify CDN SVG Framework -->
+  <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
   
   <style>
     :root {
@@ -333,7 +335,7 @@
 
   <!-- University Header -->
   <div style="position: absolute; top: 35px; right: 8%; z-index: 100; font-size: 0.95rem; font-weight: 700; color: var(--text-sub); display: flex; align-items: center; gap: 8px;">
-    <i class="fa-solid fa-school" style="color: var(--primary);"></i>
+    <iconify-icon icon="lucide:school" style="color: var(--primary); font-size: 1.15rem;"></iconify-icon>
     <span>Université Mohammed V de Rabat</span>
   </div>
 
@@ -343,12 +345,12 @@
     <!-- Slide 1: Welcome / Introduction -->
     <div class="slide active" data-index="0" data-speech="Bonjour, je vous présente notre projet Smart House. C'est un système domotique interactif contrôlé via une application mobile hybride.">
       <div class="slide-category">
-        <i class="fa-solid fa-graduation-cap"></i> Architecture Avancée
+        <iconify-icon icon="lucide:graduation-cap" style="vertical-align: middle; margin-right: 6px; font-size: 1.25rem; color: var(--primary);"></iconify-icon> Architecture Avancée
       </div>
       <h1 class="slide-title" style="font-size: 4.8rem; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 12px;">
         <span>SMART HOUSE</span>
         <span style="font-size: 1.4rem; color: var(--primary); font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; display: inline-flex; align-items: center; gap: 4px;">
-          <i class="fa-solid fa-wifi" style="font-size: 1.2rem;"></i> IoT
+          <iconify-icon icon="lucide:wifi" style="font-size: 1.3rem;"></iconify-icon> IoT
         </span>
       </h1>
       <p style="color: var(--text-sub); font-size: 1.4rem; font-weight: 300; max-width: 800px; line-height: 1.6; margin-bottom: 50px;">
@@ -360,7 +362,7 @@
         <!-- Left: Presenters -->
         <div style="display: flex; flex-direction: column; gap: 8px;">
           <div style="font-size: 0.8rem; letter-spacing: 1px; text-transform: uppercase; font-weight: 700; color: var(--secondary); display: flex; align-items: center; gap: 6px;">
-            <i class="fa-solid fa-users"></i> Présenté par :
+            <iconify-icon icon="lucide:users" style="font-size: 1.15rem;"></iconify-icon> Présenté par :
           </div>
           <div style="display: flex; flex-direction: column; gap: 4px; font-weight: 600; color: var(--text-main);">
             <span>Abdellah El Hilaly</span>
@@ -372,7 +374,7 @@
         <!-- Right: Supervisor -->
         <div style="display: flex; flex-direction: column; gap: 8px; text-align: right; align-items: flex-end;">
           <div style="font-size: 0.8rem; letter-spacing: 1px; text-transform: uppercase; font-weight: 700; color: var(--accent); display: flex; align-items: center; gap: 6px;">
-            <i class="fa-solid fa-chalkboard-user"></i> Encadré par :
+            <iconify-icon icon="lucide:presentation" style="font-size: 1.15rem;"></iconify-icon> Encadré par :
           </div>
           <div style="font-weight: 600; color: var(--text-main);">
             <span>Mme. Hanae Belmajdoub</span>
@@ -384,48 +386,65 @@
     <!-- Slide 2: Structural Topology -->
     <div class="slide" data-index="1" data-speech="Voici la topologie de notre maison intelligente. Les composants sont distribués sur deux étages.">
       <div class="slide-category">
-        <i class="fa-solid fa-sitemap"></i> Structure et Topologie
+        <iconify-icon icon="lucide:network" style="font-size: 1.25rem; vertical-align: middle; margin-right: 6px; color: var(--primary);"></iconify-icon> Structure et Topologie
       </div>
       <h2 class="slide-title" style="margin-bottom: 25px;">Topologie de la Maison</h2>
       
-      <div class="grid-2" style="width: 100%; max-width: 1100px; gap: 40px; align-items: center; justify-content: center;">
+      <div class="grid-2" style="width: 100%; max-width: 1100px; gap: 60px; align-items: center; justify-content: center;">
         <!-- Left: Details Table/Grid -->
-        <div style="text-align: left; display: flex; flex-direction: column; gap: 12px;">
-          <h3 style="font-size: 1.4rem; font-weight: 700; color: var(--text-main); margin-bottom: 5px;">Mappage Physique</h3>
-          <p style="color: var(--text-sub); font-size: 0.95rem; line-height: 1.5; margin-bottom: 5px;">
-            La topologie physique du prototype est modélisée sous forme d'une grille 3x3. Chaque LED correspond à un GPIO de l'ESP32 et possède un emplacement précis sur la maquette.
-          </p>
-          <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
+        <div style="text-align: left; display: flex; flex-direction: column; gap: 15px; align-items: center;">
+          <h3 style="font-size: 1.4rem; font-weight: 700; color: var(--text-main); align-self: flex-start;">Mappage Physique</h3>
+          
+          <!-- 3x3 Minimalist Icon Grid (Matching Image exactly, no containers/borders) -->
+          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px 30px; justify-items: center; align-items: center; margin: 10px 0;">
+            <!-- Row 1 -->
+            <iconify-icon icon="lucide:lightbulb" style="font-size: 3.2rem; color: #f5a623;"></iconify-icon>
+            <iconify-icon icon="lucide:lightbulb" style="font-size: 3.2rem; color: #3b82f6;"></iconify-icon>
+            <iconify-icon icon="lucide:lightbulb" style="font-size: 3.2rem; color: #10b981;"></iconify-icon>
+            
+            <!-- Row 2 -->
+            <iconify-icon icon="lucide:lightbulb" style="font-size: 3.2rem; color: #10b981;"></iconify-icon>
+            <iconify-icon icon="lucide:home" style="font-size: 3.2rem; color: #94a3b8;"></iconify-icon>
+            <iconify-icon icon="lucide:lightbulb" style="font-size: 3.2rem; color: #ef4444;"></iconify-icon>
+            
+            <!-- Row 3 -->
+            <iconify-icon icon="lucide:lightbulb" style="font-size: 3.2rem; color: #f5a623;"></iconify-icon>
+            <iconify-icon icon="lucide:lightbulb" style="font-size: 3.2rem; color: #10b981;"></iconify-icon>
+            <iconify-icon icon="lucide:lightbulb" style="font-size: 3.2rem; color: #f5a623;"></iconify-icon>
+          </div>
+
+          <!-- Compact Pin Label Grid -->
+          <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; width: 100%; max-width: 440px;">
             <div style="background: var(--glass-bg); padding: 8px 12px; border-radius: 10px; border: 1px solid var(--glass-border); font-size: 0.85rem; display: flex; align-items: center; gap: 8px;">
-              <i class="fa-solid fa-lightbulb" style="color: #10b981;"></i>
+              <iconify-icon icon="lucide:lightbulb" style="color: #10b981; font-size: 1.1rem;"></iconify-icon>
               <span><strong>LED 1</strong> : GP13 (Vert)</span>
             </div>
             <div style="background: var(--glass-bg); padding: 8px 12px; border-radius: 10px; border: 1px solid var(--glass-border); font-size: 0.85rem; display: flex; align-items: center; gap: 8px;">
-              <i class="fa-solid fa-lightbulb" style="color: #10b981;"></i>
+              <iconify-icon icon="lucide:lightbulb" style="color: #10b981; font-size: 1.1rem;"></iconify-icon>
               <span><strong>LED 2</strong> : GP12 (Vert)</span>
             </div>
             <div style="background: var(--glass-bg); padding: 8px 12px; border-radius: 10px; border: 1px solid var(--glass-border); font-size: 0.85rem; display: flex; align-items: center; gap: 8px;">
-              <i class="fa-solid fa-lightbulb" style="color: #f5a623;"></i>
+              <iconify-icon icon="lucide:lightbulb" style="color: #f5a623; font-size: 1.1rem;"></iconify-icon>
               <span><strong>LED 3</strong> : GP14 (Jaune)</span>
             </div>
             <div style="background: var(--glass-bg); padding: 8px 12px; border-radius: 10px; border: 1px solid var(--glass-border); font-size: 0.85rem; display: flex; align-items: center; gap: 8px;">
-              <i class="fa-solid fa-lightbulb" style="color: #10b981;"></i>
+              <iconify-icon icon="lucide:lightbulb" style="color: #10b981; font-size: 1.1rem;"></iconify-icon>
               <span><strong>LED 4</strong> : GP27 (Vert)</span>
             </div>
             <div style="background: var(--glass-bg); padding: 8px 12px; border-radius: 10px; border: 1px solid var(--glass-border); font-size: 0.85rem; display: flex; align-items: center; gap: 8px;">
-              <i class="fa-solid fa-lightbulb" style="color: #ef4444;"></i>
+              <iconify-icon icon="lucide:lightbulb" style="color: #ef4444; font-size: 1.1rem;"></iconify-icon>
               <span><strong>LED 5</strong> : GP26 (Rouge)</span>
             </div>
             <div style="background: var(--glass-bg); padding: 8px 12px; border-radius: 10px; border: 1px solid var(--glass-border); font-size: 0.85rem; display: flex; align-items: center; gap: 8px;">
-              <i class="fa-solid fa-lightbulb" style="color: #3b82f6;"></i>
+              <iconify-icon icon="lucide:lightbulb" style="color: #3b82f6; font-size: 1.1rem;"></iconify-icon>
               <span><strong>LED 6</strong> : GP25 (Bleu)</span>
             </div>
             <div style="background: var(--glass-bg); padding: 8px 12px; border-radius: 10px; border: 1px solid var(--glass-border); font-size: 0.85rem; display: flex; align-items: center; gap: 8px;">
-              <i class="fa-solid fa-lightbulb" style="color: #10b981;"></i>
+              <iconify-icon icon="lucide:lightbulb" style="color: #10b981; font-size: 1.1rem;"></iconify-icon>
               <span><strong>LED 7</strong> : GP33 (Vert)</span>
             </div>
             <div style="background: var(--glass-bg); padding: 8px 12px; border-radius: 10px; border: 1px solid var(--glass-border); font-size: 0.85rem; display: flex; align-items: center; gap: 8px;">
-              <i class="fa-solid fa-lightbulb" style="color: #f5a623;"></i>
+              <iconify-icon icon="lucide:lightbulb" style="color: #f5a623; font-size: 1.1rem;"></iconify-icon>
               <span><strong>LED 8</strong> : GP32 (Jaune)</span>
             </div>
           </div>
