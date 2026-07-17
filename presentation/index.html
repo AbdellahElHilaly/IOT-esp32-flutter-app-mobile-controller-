@@ -416,45 +416,15 @@
   </div>
 
   <!-- HUD Control Bar -->
-  <div class="navigation-overlay">
-    <div class="nav-buttons">
-      <button class="nav-btn" id="prev-slide-btn" title="Précédent"><i class="fa-solid fa-chevron-left"></i></button>
-      <button class="nav-btn" id="next-slide-btn" title="Suivant"><i class="fa-solid fa-chevron-right"></i></button>
-    </div>
-
-    <!-- Interactive Presenter Speech Button -->
-    <button class="presenter-notes-btn" id="notes-trigger">
-      <i class="fa-solid fa-comment-dots"></i> Notes de Présentation
-    </button>
-
+  <div class="navigation-overlay" style="justify-content: center;">
     <div class="progress-bar-container" id="indicators-container">
       <!-- Dots injected dynamically -->
     </div>
   </div>
 
-  <!-- Presenter Notes Modal -->
-  <div class="notes-overlay" id="notes-overlay-bg">
-    <div class="notes-modal">
-      <div class="notes-header">
-        <h3 class="notes-title"><i class="fa-solid fa-bullhorn"></i> Que dire à l'examinateur ?</h3>
-        <button class="notes-close" id="notes-close-x"><i class="fa-solid fa-xmark"></i></button>
-      </div>
-      <div class="notes-content" id="notes-body-text">
-        <!-- Speech loaded dynamically -->
-      </div>
-    </div>
-  </div>
-
   <script>
     const slides = document.querySelectorAll('.slide');
-    const prevBtn = document.getElementById('prev-slide-btn');
-    const nextBtn = document.getElementById('next-slide-btn');
     const indicatorsContainer = document.getElementById('indicators-container');
-    
-    const notesTrigger = document.getElementById('notes-trigger');
-    const notesOverlay = document.getElementById('notes-overlay-bg');
-    const notesCloseX = document.getElementById('notes-close-x');
-    const notesBodyText = document.getElementById('notes-body-text');
 
     let activeSlideIndex = 0;
 
@@ -509,28 +479,6 @@
         advanceSlide();
       } else if (event.key === 'ArrowLeft') {
         retreatSlide();
-      }
-    });
-
-    // Button controls click events
-    nextBtn.addEventListener('click', advanceSlide);
-    prevBtn.addEventListener('click', retreatSlide);
-
-    // Presenter speech notes window handler
-    notesTrigger.addEventListener('click', () => {
-      const activeSlide = slides[activeSlideIndex];
-      const speech = activeSlide.getAttribute('data-speech');
-      notesBodyText.innerHTML = speech;
-      notesOverlay.classList.add('active');
-    });
-
-    notesCloseX.addEventListener('click', () => {
-      notesOverlay.classList.remove('active');
-    });
-
-    notesOverlay.addEventListener('click', (event) => {
-      if (event.target === notesOverlay) {
-        notesOverlay.classList.remove('active');
       }
     });
 
