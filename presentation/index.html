@@ -340,6 +340,61 @@
       0% { stroke-dashoffset: 18; }
       100% { stroke-dashoffset: 0; }
     }
+    
+    /* Media queries for phone responsive landscape modes */
+    @media (max-height: 550px) {
+      .slide {
+        padding: 20px 8% 45px 8% !important;
+      }
+      .slide-title {
+        font-size: 1.8rem !important;
+        margin-bottom: 8px !important;
+      }
+      .slide-category {
+        font-size: 0.7rem !important;
+        margin-bottom: 4px !important;
+      }
+      .slide p {
+        font-size: 1rem !important;
+        margin-bottom: 15px !important;
+      }
+      .slide img {
+        max-height: 180px !important;
+        width: auto !important;
+      }
+      /* Scale grids/flexboxes */
+      .slide div[style*="grid-template-columns"] {
+        gap: 10px !important;
+        margin-top: 5px !important;
+      }
+      /* Shrink padding inside cards */
+      .slide div[style*="padding: 20px"] {
+        padding: 8px 12px !important;
+        gap: 5px !important;
+      }
+      .slide iconify-icon[style*="font-size: 3rem"] {
+        font-size: 1.8rem !important;
+      }
+      .slide span[style*="font-size: 1.1rem"] {
+        font-size: 0.85rem !important;
+      }
+      /* Slide 1 footer custom placement */
+      div[style*="bottom: 95px"] {
+        bottom: 50px !important;
+        padding-top: 8px !important;
+        font-size: 0.8rem !important;
+      }
+      /* HUD Control Bar repositioning */
+      .navigation-overlay {
+        bottom: 8px !important;
+        width: 90% !important;
+        left: 5% !important;
+        right: 5% !important;
+      }
+      .navigation-overlay div {
+        font-size: 0.7rem !important;
+      }
+    }
   </style>
 </head>
 <body>
@@ -946,6 +1001,10 @@
     </div>
   </div>
 
+  <!-- Invisible Touch Navigation Zones (Left 20% / Right 80%) -->
+  <div id="prev-touch-zone" style="position: fixed; top: 0; left: 0; width: 20vw; height: 100vh; z-index: 90; cursor: w-resize;"></div>
+  <div id="next-touch-zone" style="position: fixed; top: 0; right: 0; width: 80vw; height: 100vh; z-index: 89; cursor: e-resize;"></div>
+
   <script>
     const slides = document.querySelectorAll('.slide');
     const indicatorsContainer = document.getElementById('indicators-container');
@@ -1026,6 +1085,17 @@
       document.removeEventListener('click', goFullscreenAutomatically);
       document.removeEventListener('keydown', goFullscreenAutomatically);
     }
+
+    // Touch zones click handlers
+    document.getElementById('prev-touch-zone').addEventListener('click', (e) => {
+      // Allow bubbling so goFullscreenAutomatically still runs if it's the first touch
+      retreatSlide();
+    });
+
+    document.getElementById('next-touch-zone').addEventListener('click', (e) => {
+      // Allow bubbling so goFullscreenAutomatically still runs if it's the first touch
+      advanceSlide();
+    });
 
     document.addEventListener('click', goFullscreenAutomatically);
     document.addEventListener('keydown', goFullscreenAutomatically);
