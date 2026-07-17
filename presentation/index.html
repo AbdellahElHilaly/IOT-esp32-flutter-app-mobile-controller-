@@ -391,12 +391,11 @@
       <h2 class="slide-title" style="margin-bottom: 25px;">Topologie de la Maison</h2>
       
       <div class="grid-2" style="width: 100%; max-width: 1100px; gap: 60px; align-items: center; justify-content: center;">
-        <!-- Left: Details Table/Grid -->
-        <div style="text-align: left; display: flex; flex-direction: column; gap: 15px; align-items: center;">
+        <!-- Left: 3x3 Minimalist Icon Grid -->
+        <div style="display: flex; flex-direction: column; gap: 20px; align-items: center;">
           <h3 style="font-size: 1.4rem; font-weight: 700; color: var(--text-main); align-self: flex-start;">Mappage Physique</h3>
           
-          <!-- 3x3 Minimalist Icon Grid (Matching Image exactly, no containers/borders) -->
-          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px 30px; justify-items: center; align-items: center; margin: 10px 0;">
+          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 25px 40px; justify-items: center; align-items: center;">
             <!-- Row 1 -->
             <iconify-icon icon="lucide:lightbulb" style="font-size: 3.2rem; color: #f5a623;"></iconify-icon>
             <iconify-icon icon="lucide:lightbulb" style="font-size: 3.2rem; color: #3b82f6;"></iconify-icon>
@@ -412,70 +411,19 @@
             <iconify-icon icon="lucide:lightbulb" style="font-size: 3.2rem; color: #10b981;"></iconify-icon>
             <iconify-icon icon="lucide:lightbulb" style="font-size: 3.2rem; color: #f5a623;"></iconify-icon>
           </div>
-
-          <!-- Compact Pin Label Grid -->
-          <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; width: 100%; max-width: 440px;">
-            <div style="background: var(--glass-bg); padding: 8px 12px; border-radius: 10px; border: 1px solid var(--glass-border); font-size: 0.85rem; display: flex; align-items: center; gap: 8px;">
-              <iconify-icon icon="lucide:lightbulb" style="color: #10b981; font-size: 1.1rem;"></iconify-icon>
-              <span><strong>LED 1</strong> : GP13 (Vert)</span>
-            </div>
-            <div style="background: var(--glass-bg); padding: 8px 12px; border-radius: 10px; border: 1px solid var(--glass-border); font-size: 0.85rem; display: flex; align-items: center; gap: 8px;">
-              <iconify-icon icon="lucide:lightbulb" style="color: #10b981; font-size: 1.1rem;"></iconify-icon>
-              <span><strong>LED 2</strong> : GP12 (Vert)</span>
-            </div>
-            <div style="background: var(--glass-bg); padding: 8px 12px; border-radius: 10px; border: 1px solid var(--glass-border); font-size: 0.85rem; display: flex; align-items: center; gap: 8px;">
-              <iconify-icon icon="lucide:lightbulb" style="color: #f5a623; font-size: 1.1rem;"></iconify-icon>
-              <span><strong>LED 3</strong> : GP14 (Jaune)</span>
-            </div>
-            <div style="background: var(--glass-bg); padding: 8px 12px; border-radius: 10px; border: 1px solid var(--glass-border); font-size: 0.85rem; display: flex; align-items: center; gap: 8px;">
-              <iconify-icon icon="lucide:lightbulb" style="color: #10b981; font-size: 1.1rem;"></iconify-icon>
-              <span><strong>LED 4</strong> : GP27 (Vert)</span>
-            </div>
-            <div style="background: var(--glass-bg); padding: 8px 12px; border-radius: 10px; border: 1px solid var(--glass-border); font-size: 0.85rem; display: flex; align-items: center; gap: 8px;">
-              <iconify-icon icon="lucide:lightbulb" style="color: #ef4444; font-size: 1.1rem;"></iconify-icon>
-              <span><strong>LED 5</strong> : GP26 (Rouge)</span>
-            </div>
-            <div style="background: var(--glass-bg); padding: 8px 12px; border-radius: 10px; border: 1px solid var(--glass-border); font-size: 0.85rem; display: flex; align-items: center; gap: 8px;">
-              <iconify-icon icon="lucide:lightbulb" style="color: #3b82f6; font-size: 1.1rem;"></iconify-icon>
-              <span><strong>LED 6</strong> : GP25 (Bleu)</span>
-            </div>
-            <div style="background: var(--glass-bg); padding: 8px 12px; border-radius: 10px; border: 1px solid var(--glass-border); font-size: 0.85rem; display: flex; align-items: center; gap: 8px;">
-              <iconify-icon icon="lucide:lightbulb" style="color: #10b981; font-size: 1.1rem;"></iconify-icon>
-              <span><strong>LED 7</strong> : GP33 (Vert)</span>
-            </div>
-            <div style="background: var(--glass-bg); padding: 8px 12px; border-radius: 10px; border: 1px solid var(--glass-border); font-size: 0.85rem; display: flex; align-items: center; gap: 8px;">
-              <iconify-icon icon="lucide:lightbulb" style="color: #f5a623; font-size: 1.1rem;"></iconify-icon>
-              <span><strong>LED 8</strong> : GP32 (Jaune)</span>
-            </div>
-          </div>
         </div>
         
         <!-- Right: Image with LED Overlay (Static) -->
         <div style="position: relative; width: 100%; max-width: 500px; border-radius: 16px; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.12); border: 2px solid var(--glass-border); margin: 0 auto;">
           <img src="house_screens_hot.png" alt="Smart House Topology" style="width: 100%; display: block;">
           
-          <!-- LED 3 (Top-Left) - GP14 (Yellow) -->
           <div class="led-overlay yellow" style="top: 7%; left: 4.5%;"></div>
-          
-          <!-- LED 6 (Top-Center) - GP25 (Blue) -->
           <div class="led-overlay blue" style="top: 5.5%; left: 49.5%;"></div>
-          
-          <!-- LED 4 (Top-Right) - GP27 (Green) -->
           <div class="led-overlay green" style="top: 6.5%; left: 95.5%;"></div>
-          
-          <!-- LED 1 (Mid-Left) - GP13 (Green) -->
           <div class="led-overlay green" style="top: 56.5%; left: 4%;"></div>
-          
-          <!-- LED 7 (Mid-Right) - GP33 (Green) -->
           <div class="led-overlay green" style="top: 48%; left: 94.5%;"></div>
-          
-          <!-- LED 5 (Bot-Left) - GP26 (Red) -->
           <div class="led-overlay red" style="top: 96%; left: 8.5%;"></div>
-          
-          <!-- LED 2 (Bot-Center) - GP12 (Green) -->
           <div class="led-overlay green" style="top: 94%; left: 51.5%;"></div>
-          
-          <!-- LED 8 (Bot-Right) - GP32 (Yellow) -->
           <div class="led-overlay yellow" style="top: 86.5%; left: 91.5%;"></div>
         </div>
       </div>
