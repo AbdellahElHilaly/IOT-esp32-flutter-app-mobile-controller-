@@ -388,44 +388,38 @@
       <div class="slide-category">
         <iconify-icon icon="lucide:network" style="font-size: 1.25rem; vertical-align: middle; margin-right: 6px; color: var(--primary);"></iconify-icon> Structure et Topologie
       </div>
-      <h2 class="slide-title" style="margin-bottom: 25px;">Topologie de la Maison</h2>
+      <h2 class="slide-title" style="margin-bottom: 20px;">Topologie de la Maison</h2>
       
-      <div class="grid-2" style="width: 100%; max-width: 1100px; gap: 60px; align-items: center; justify-content: center;">
-        <!-- Left: 3x3 Minimalist Icon Grid -->
-        <div style="display: flex; flex-direction: column; gap: 20px; align-items: center;">
-          <h3 style="font-size: 1.4rem; font-weight: 700; color: var(--text-main); align-self: flex-start;">Mappage Physique</h3>
-          
-          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 25px 40px; justify-items: center; align-items: center;">
-            <!-- Row 1 -->
-            <iconify-icon icon="lucide:lightbulb" style="font-size: 3.2rem; color: #f5a623;"></iconify-icon>
-            <iconify-icon icon="lucide:lightbulb" style="font-size: 3.2rem; color: #3b82f6;"></iconify-icon>
-            <iconify-icon icon="lucide:lightbulb" style="font-size: 3.2rem; color: #10b981;"></iconify-icon>
-            
-            <!-- Row 2 -->
-            <iconify-icon icon="lucide:lightbulb" style="font-size: 3.2rem; color: #10b981;"></iconify-icon>
-            <iconify-icon icon="lucide:home" style="font-size: 3.2rem; color: #94a3b8;"></iconify-icon>
-            <iconify-icon icon="lucide:lightbulb" style="font-size: 3.2rem; color: #ef4444;"></iconify-icon>
-            
-            <!-- Row 3 -->
-            <iconify-icon icon="lucide:lightbulb" style="font-size: 3.2rem; color: #f5a623;"></iconify-icon>
-            <iconify-icon icon="lucide:lightbulb" style="font-size: 3.2rem; color: #10b981;"></iconify-icon>
-            <iconify-icon icon="lucide:lightbulb" style="font-size: 3.2rem; color: #f5a623;"></iconify-icon>
-          </div>
-        </div>
+      <!-- Single centered image with Iconify LED icons overlaid -->
+      <div style="position: relative; width: 100%; max-width: 700px; border-radius: 16px; overflow: visible; margin: 0 auto;">
+        <img src="house_screens_hot.png" alt="Smart House Topology" style="width: 100%; display: block; border-radius: 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.12); border: 2px solid var(--glass-border);">
         
-        <!-- Right: Image with LED Overlay (Static) -->
-        <div style="position: relative; width: 100%; max-width: 500px; border-radius: 16px; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.12); border: 2px solid var(--glass-border); margin: 0 auto;">
-          <img src="house_screens_hot.png" alt="Smart House Topology" style="width: 100%; display: block;">
-          
-          <div class="led-overlay yellow" style="top: 7%; left: 4.5%;"></div>
-          <div class="led-overlay blue" style="top: 5.5%; left: 49.5%;"></div>
-          <div class="led-overlay green" style="top: 6.5%; left: 95.5%;"></div>
-          <div class="led-overlay green" style="top: 56.5%; left: 4%;"></div>
-          <div class="led-overlay green" style="top: 48%; left: 94.5%;"></div>
-          <div class="led-overlay red" style="top: 96%; left: 8.5%;"></div>
-          <div class="led-overlay green" style="top: 94%; left: 51.5%;"></div>
-          <div class="led-overlay yellow" style="top: 86.5%; left: 91.5%;"></div>
-        </div>
+        <!-- LED 3: Top-Left - GP14 (Yellow) -->
+        <iconify-icon icon="lucide:lightbulb" style="position: absolute; top: 4%; left: 3%; font-size: 2.2rem; color: #f5a623; transform: translate(-50%, -50%); filter: drop-shadow(0 0 6px rgba(245,166,35,0.5));"></iconify-icon>
+        
+        <!-- LED 6: Top-Center - GP25 (Blue) -->
+        <iconify-icon icon="lucide:lightbulb" style="position: absolute; top: 3%; left: 49%; font-size: 2.2rem; color: #3b82f6; transform: translate(-50%, -50%); filter: drop-shadow(0 0 6px rgba(59,130,246,0.5));"></iconify-icon>
+        
+        <!-- LED 4: Top-Right - GP27 (Green) -->
+        <iconify-icon icon="lucide:lightbulb" style="position: absolute; top: 4%; left: 96%; font-size: 2.2rem; color: #10b981; transform: translate(-50%, -50%); filter: drop-shadow(0 0 6px rgba(16,185,129,0.5));"></iconify-icon>
+        
+        <!-- LED 1: Mid-Left - GP13 (Green) -->
+        <iconify-icon icon="lucide:lightbulb" style="position: absolute; top: 55%; left: 3%; font-size: 2.2rem; color: #10b981; transform: translate(-50%, -50%); filter: drop-shadow(0 0 6px rgba(16,185,129,0.5));"></iconify-icon>
+        
+        <!-- Center: Home icon -->
+        <iconify-icon icon="lucide:home" style="position: absolute; top: 50%; left: 50%; font-size: 2.6rem; color: #94a3b8; transform: translate(-50%, -50%); filter: drop-shadow(0 0 4px rgba(148,163,184,0.4));"></iconify-icon>
+        
+        <!-- LED 7: Mid-Right - GP33 (Green) -->
+        <iconify-icon icon="lucide:lightbulb" style="position: absolute; top: 47%; left: 95%; font-size: 2.2rem; color: #10b981; transform: translate(-50%, -50%); filter: drop-shadow(0 0 6px rgba(16,185,129,0.5));"></iconify-icon>
+        
+        <!-- LED 5: Bot-Left - GP26 (Red) -->
+        <iconify-icon icon="lucide:lightbulb" style="position: absolute; top: 95%; left: 7%; font-size: 2.2rem; color: #ef4444; transform: translate(-50%, -50%); filter: drop-shadow(0 0 6px rgba(239,68,68,0.5));"></iconify-icon>
+        
+        <!-- LED 2: Bot-Center - GP12 (Green) -->
+        <iconify-icon icon="lucide:lightbulb" style="position: absolute; top: 93%; left: 51%; font-size: 2.2rem; color: #10b981; transform: translate(-50%, -50%); filter: drop-shadow(0 0 6px rgba(16,185,129,0.5));"></iconify-icon>
+        
+        <!-- LED 8: Bot-Right - GP32 (Yellow) -->
+        <iconify-icon icon="lucide:lightbulb" style="position: absolute; top: 86%; left: 92%; font-size: 2.2rem; color: #f5a623; transform: translate(-50%, -50%); filter: drop-shadow(0 0 6px rgba(245,166,35,0.5));"></iconify-icon>
       </div>
     </div>
 
