@@ -1,25 +1,25 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Smart House Presentation</title>
+  <title>Présentation Smart House</title>
   <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Manrope:wght@300;400;600;700&family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Manrope:wght@300;400;600;700&display=swap" rel="stylesheet">
   <!-- FontAwesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
   <style>
     :root {
-      --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #020617 100%);
-      --glass-bg: rgba(255, 255, 255, 0.03);
-      --glass-border: rgba(255, 255, 255, 0.08);
-      --glass-highlight: rgba(255, 255, 255, 0.15);
-      --primary: #4a90e2;
-      --secondary: #a855f7;
-      --accent: #4ae183;
-      --text-main: #f8fafc;
-      --text-sub: #94a3b8;
+      --bg-gradient: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 50%, #e2e8f0 100%);
+      --glass-bg: rgba(255, 255, 255, 0.7);
+      --glass-border: rgba(15, 23, 42, 0.08);
+      --glass-highlight: rgba(255, 255, 255, 0.95);
+      --primary: #2563eb;
+      --secondary: #7c3aed;
+      --accent: #059669;
+      --text-main: #0f172a;
+      --text-sub: #475569;
     }
 
     * {
@@ -36,10 +36,11 @@
       height: 100vh;
       display: flex;
       flex-direction: column;
+      user-select: none;
     }
 
-    /* Fullscreen Slide Container */
-    .presentation-container {
+    /* Presentation Screen Wrapper */
+    .presentation-wrapper {
       flex: 1;
       position: relative;
       width: 100%;
@@ -55,170 +56,94 @@
       height: 100%;
       padding: 60px 8%;
       opacity: 0;
-      transform: translateX(100px);
-      transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+      transform: scale(0.95) translateY(20px);
+      transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
       pointer-events: none;
       display: flex;
       flex-direction: column;
       justify-content: center;
+      align-items: center;
+      text-align: center;
     }
 
     .slide.active {
       opacity: 1;
-      transform: translateX(0);
+      transform: scale(1) translateY(0);
       pointer-events: auto;
     }
 
     .slide.prev {
       opacity: 0;
-      transform: translateX(-100px);
+      transform: scale(0.95) translateY(-20px);
     }
 
-    /* Typography & Headers */
-    .slide-header {
-      margin-bottom: 40px;
-    }
-
+    /* Minimal Slide Header Style */
     .slide-category {
       font-size: 0.85rem;
-      letter-spacing: 3px;
+      letter-spacing: 4px;
       text-transform: uppercase;
-      color: var(--accent);
+      color: var(--primary);
       font-weight: 700;
-      margin-bottom: 10px;
+      margin-bottom: 12px;
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
     }
 
     .slide-title {
-      font-size: 3rem;
-      font-weight: 800;
-      background: linear-gradient(to right, #ffffff, var(--text-sub));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    /* Grid Layouts */
-    .grid-2 {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 40px;
-      align-items: center;
-      flex: 1;
-    }
-
-    .grid-3 {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 30px;
-      flex: 1;
-    }
-
-    .grid-4 {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 20px;
-      flex: 1;
-    }
-
-    /* Glassmorphic Cards */
-    .card {
-      background: var(--glass-bg);
-      border: 1px solid var(--glass-border);
-      border-radius: 24px;
-      padding: 30px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      backdrop-filter: blur(16px);
-      transition: all 0.3s ease;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, transparent 100%);
-      pointer-events: none;
-    }
-
-    .card:hover {
-      transform: translateY(-8px);
-      border-color: var(--primary);
-      box-shadow: 0 10px 30px rgba(74, 144, 226, 0.1);
-    }
-
-    .card i {
       font-size: 3.5rem;
-      margin-bottom: 20px;
-      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      font-weight: 800;
+      background: linear-gradient(to right, #0f172a, #334155);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
+      margin-bottom: 20px;
     }
 
-    .card-title {
-      font-size: 1.4rem;
-      font-weight: 700;
-      margin-bottom: 8px;
-    }
-
-    .card-value {
-      font-size: 1.1rem;
-      color: var(--accent);
-      font-weight: 600;
-    }
-
-    /* Screenshot Placeholders */
-    .screenshot-placeholder {
-      background: rgba(0, 0, 0, 0.2);
-      border: 2px dashed rgba(255, 255, 255, 0.15);
+    /* Empty Placeholder Box for testing */
+    .placeholder-content-box {
+      width: 100%;
+      max-width: 800px;
+      height: 320px;
+      background: var(--glass-bg);
+      border: 1px dashed var(--glass-border);
       border-radius: 24px;
-      height: 350px;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 30px;
-      text-align: center;
-      position: relative;
+      gap: 15px;
+      margin-top: 20px;
       transition: all 0.3s ease;
+      box-shadow: 0 4px 20px rgba(15, 23, 42, 0.02);
     }
 
-    .screenshot-placeholder:hover {
-      border-color: var(--secondary);
-      background: rgba(0, 0, 0, 0.3);
+    .placeholder-content-box:hover {
+      border-color: var(--primary);
+      background: rgba(255, 255, 255, 0.9);
+      box-shadow: 0 8px 30px rgba(15, 23, 42, 0.04);
     }
 
-    .screenshot-placeholder i {
+    .placeholder-icon {
       font-size: 4rem;
-      color: var(--text-sub);
-      margin-bottom: 15px;
+      color: rgba(15, 23, 42, 0.15);
+      animation: floatIcon 3s ease-in-out infinite;
     }
 
-    .screenshot-desc {
+    @keyframes floatIcon {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    .placeholder-text {
       font-size: 1.1rem;
-      font-weight: 600;
-      color: var(--text-main);
-      margin-bottom: 8px;
-    }
-
-    .screenshot-detail {
-      font-size: 0.85rem;
       color: var(--text-sub);
+      font-weight: 400;
     }
 
-    /* Navigation HUD */
-    .hud-controls {
+    /* Navigation Controls Overlay */
+    .navigation-overlay {
       position: absolute;
-      bottom: 30px;
+      bottom: 40px;
       left: 8%;
       right: 8%;
       display: flex;
@@ -227,83 +152,86 @@
       z-index: 100;
     }
 
-    .hud-buttons {
+    .nav-buttons {
       display: flex;
       gap: 15px;
     }
 
-    .hud-btn {
+    .nav-btn {
       background: var(--glass-bg);
       border: 1px solid var(--glass-border);
       color: var(--text-main);
-      width: 50px;
-      height: 50px;
-      border-radius: 15px;
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.2rem;
+      font-size: 1.1rem;
       transition: all 0.2s ease;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
     }
 
-    .hud-btn:hover {
+    .nav-btn:hover {
       background: var(--primary);
       border-color: var(--primary);
+      color: #ffffff;
       transform: scale(1.05);
+      box-shadow: 0 6px 20px rgba(37, 99, 235, 0.3);
     }
 
-    .hud-progress {
+    .progress-bar-container {
       display: flex;
-      gap: 8px;
+      gap: 6px;
     }
 
-    .hud-dot {
-      width: 10px;
-      height: 10px;
+    .progress-indicator {
+      width: 8px;
+      height: 8px;
       border-radius: 50%;
-      background: rgba(255, 255, 255, 0.2);
+      background: rgba(15, 23, 42, 0.15);
       cursor: pointer;
       transition: all 0.3s ease;
     }
 
-    .hud-dot.active {
+    .progress-indicator.active {
       background: var(--primary);
       transform: scale(1.3);
-      box-shadow: 0 0 10px var(--primary);
+      box-shadow: 0 0 12px rgba(37, 99, 235, 0.5);
     }
 
-    /* Presenter Notes Button & Modal */
-    .notes-trigger-btn {
-      background: linear-gradient(135deg, var(--secondary) 0%, #7c3aed 100%);
+    /* Presenter Notes Button & Modal in French */
+    .presenter-notes-btn {
+      background: linear-gradient(135deg, var(--secondary) 0%, #6d28d9 100%);
       border: none;
-      color: var(--text-main);
-      padding: 14px 28px;
-      border-radius: 16px;
-      font-family: 'Cairo', sans-serif;
-      font-weight: 700;
+      color: #ffffff;
+      padding: 12px 24px;
+      border-radius: 14px;
+      font-weight: 600;
       cursor: pointer;
       display: flex;
       align-items: center;
-      gap: 10px;
-      font-size: 1.1rem;
-      box-shadow: 0 4px 20px rgba(168, 85, 247, 0.3);
+      gap: 8px;
+      font-size: 0.95rem;
+      box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
       transition: all 0.2s ease;
     }
 
-    .notes-trigger-btn:hover {
+    .presenter-notes-btn:hover {
       transform: scale(1.03);
-      box-shadow: 0 6px 25px rgba(168, 85, 247, 0.5);
+      box-shadow: 0 6px 20px rgba(139, 92, 246, 0.45);
     }
 
-    .notes-modal-overlay {
+    .notes-overlay {
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(15, 23, 42, 0.85);
-      backdrop-filter: blur(12px);
+      background: rgba(15, 23, 42, 0.4);
+      backdrop-filter: blur(8px);
       z-index: 200;
       display: flex;
       align-items: center;
@@ -313,52 +241,51 @@
       transition: all 0.3s ease;
     }
 
-    .notes-modal-overlay.active {
+    .notes-overlay.active {
       opacity: 1;
       pointer-events: auto;
     }
 
     .notes-modal {
-      background: #1e1b4b;
+      background: #ffffff;
       border: 1px solid var(--glass-border);
-      border-radius: 30px;
+      border-radius: 24px;
       width: 90%;
-      max-width: 700px;
-      padding: 40px;
-      position: relative;
-      transform: translateY(50px);
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      max-width: 600px;
+      padding: 35px;
+      transform: scale(0.95);
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      box-shadow: 0 20px 40px rgba(15, 23, 42, 0.12);
+      color: var(--text-main);
     }
 
-    .notes-modal-overlay.active .notes-modal {
-      transform: translateY(0);
+    .notes-overlay.active .notes-modal {
+      transform: scale(1);
     }
 
     .notes-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 25px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-      padding-bottom: 15px;
+      margin-bottom: 20px;
+      border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+      padding-bottom: 12px;
     }
 
     .notes-title {
-      font-family: 'Cairo', sans-serif;
-      font-weight: 900;
-      font-size: 1.6rem;
+      font-weight: 700;
+      font-size: 1.3rem;
       color: var(--accent);
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
     }
 
     .notes-close {
       background: none;
       border: none;
       color: var(--text-sub);
-      font-size: 1.5rem;
+      font-size: 1.4rem;
       cursor: pointer;
       transition: color 0.2s ease;
     }
@@ -368,489 +295,257 @@
     }
 
     .notes-content {
-      font-family: 'Cairo', sans-serif;
-      font-size: 1.35rem;
-      line-height: 1.9;
-      color: #e2e8f0;
-      direction: rtl;
-      text-align: right;
-    }
-
-    /* Topology Layout View */
-    .topology-house-map {
-      background: var(--glass-bg);
-      border: 1px solid var(--glass-border);
-      border-radius: 24px;
-      padding: 30px;
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-      width: 100%;
-      max-width: 450px;
-      margin: 0 auto;
-    }
-
-    .topology-row {
-      display: flex;
-      justify-content: space-between;
-      gap: 15px;
-    }
-
-    .topology-led-node {
-      flex: 1;
-      height: 70px;
-      border-radius: 16px;
-      background: rgba(255, 255, 255, 0.05);
-      border: 1.5px solid var(--glass-border);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.85rem;
-      font-weight: 600;
-      transition: all 0.3s ease;
-    }
-
-    .topology-led-node i {
-      font-size: 1.4rem;
-      margin-bottom: 4px;
-    }
-
-    .topology-led-node.yellow i { color: #f5a623; }
-    .topology-led-node.blue i { color: #4a90e2; }
-    .topology-led-node.green i { color: #4ae183; }
-    .topology-led-node.red i { color: #e24a8d; }
-    .topology-led-node.center-empty {
-      background: transparent;
-      border: 1px dashed rgba(255, 255, 255, 0.1);
-      color: rgba(255, 255, 255, 0.2);
-    }
-
-    /* Architecture diagram animation */
-    .sync-diagram {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 20px;
-      padding: 20px;
-    }
-
-    .sync-block {
-      background: var(--glass-bg);
-      border: 1.5px solid var(--glass-border);
-      border-radius: 20px;
-      padding: 25px;
-      width: 160px;
-      text-align: center;
-    }
-
-    .sync-block i {
-      font-size: 3rem;
-      margin-bottom: 12px;
-      color: var(--primary);
-    }
-
-    .sync-arrow {
-      font-size: 2rem;
-      color: var(--accent);
-      animation: pulseArrow 1.5s infinite;
-    }
-
-    @keyframes pulseArrow {
-      0% { transform: scale(1); opacity: 0.5; }
-      50% { transform: scale(1.2); opacity: 1; }
-      100% { transform: scale(1); opacity: 0.5; }
-    }
-
-    .fullscreen-indicator {
-      position: absolute;
-      top: 30px;
-      right: 8%;
-      display: flex;
-      gap: 15px;
-      align-items: center;
-      z-index: 100;
-    }
-
-    .fullscreen-btn {
-      background: var(--glass-bg);
-      border: 1px solid var(--glass-border);
+      font-size: 1.15rem;
+      line-height: 1.7;
       color: var(--text-main);
-      padding: 10px 18px;
-      border-radius: 12px;
-      cursor: pointer;
-      font-size: 0.9rem;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      transition: all 0.2s ease;
-    }
-
-    .fullscreen-btn:hover {
-      background: var(--glass-highlight);
+      text-align: left;
     }
   </style>
 </head>
 <body>
 
-  <!-- Fullscreen Control Indicator -->
-  <div class="fullscreen-indicator">
-    <button class="fullscreen-btn" id="fs-btn">
-      <i class="fa-solid fa-expand"></i> Fullscreen Mode
-    </button>
-  </div>
+  <!-- Slides Wrapper -->
+  <div class="presentation-wrapper">
 
-  <!-- Main Slide Container -->
-  <div class="presentation-container">
+    <!-- Slide 1: Welcome / Introduction -->
+    <div class="slide active" data-index="0" data-speech="Bonjour, je vous présente notre projet Smart House. C'est un système domotique interactif contrôlé via une application mobile hybride.">
+      <div class="slide-category">
+        <i class="fa-solid fa-graduation-cap"></i> Architecture Avancée
+      </div>
+      <h1 class="slide-title" style="font-size: 4.8rem; margin-top: 10px;">SMART HOUSE</h1>
+      <p style="color: var(--text-sub); font-size: 1.4rem; font-weight: 300; max-width: 800px; line-height: 1.6; margin-bottom: 50px;">
+        Un système domotique intelligent doté d'un contrôle Bluetooth et d'une synchronisation dynamique des LEDs (IoT).
+      </p>
 
-    <!-- Slide 1: Welcome & Cover -->
-    <div class="slide active" data-index="0" data-speech="أهلاً بكِ يا أستاذتي الكريمة، اليوم سأقدم لكِ مشروعي وهو عبارة عن منزل ذكي تفاعلي يتم التحكم به بالكامل لاسلكياً عبر تطبيق الهاتف باستخدام البلوتوث وإنترنت الأشياء (IoT). المشروع يدمج بين إنترنت الأشياء والتحكم الذكي بالمستشعرات والحركات الضوئية التعبيرية المخصصة.">
-      <div class="slide-header" style="text-align: center;">
-        <div class="slide-category"><i class="fa-solid fa-home"></i> Graduation Project Presentation</div>
-        <h1 class="slide-title" style="font-size: 4.5rem; margin-top: 10px; background: linear-gradient(135deg, #ffffff 0%, var(--primary) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">SMART HOUSE</h1>
-        <p style="color: var(--text-sub); font-size: 1.4rem; margin-top: 15px; font-weight: 300;">An Interactive 2-Story Smart House with IoT Bluetooth Control & Dynamic Led Synchronization</p>
-      </div>
-      <div class="grid-3" style="max-width: 1000px; margin: 0 auto; width: 100%;">
-        <div class="card">
-          <i class="fa-solid fa-mobile-screen-button"></i>
-          <h3 class="card-title">Mobile Controller</h3>
-          <span class="card-value">Flutter Application</span>
+      <!-- Footer for names (PPTX Style) -->
+      <div style="position: absolute; bottom: 40px; left: 8%; right: 8%; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(15, 23, 42, 0.08); padding-top: 25px; font-size: 0.95rem; color: var(--text-sub);">
+        <div style="display: flex; align-items: center; gap: 8px; font-weight: 700; color: var(--secondary);">
+          <i class="fa-solid fa-users"></i> Présenté par :
         </div>
-        <div class="card" style="border-color: var(--secondary);">
-          <i class="fa-solid fa-microchip"></i>
-          <h3 class="card-title">ESP32 Core</h3>
-          <span class="card-value">Smart Logic Unit</span>
-        </div>
-        <div class="card">
-          <i class="fa-solid fa-wand-magic-sparkles"></i>
-          <h3 class="card-title">Multi-Layer Wave</h3>
-          <span class="card-value">9 Light Animations</span>
-        </div>
-      </div>
-      <div style="margin-top: 40px; display: flex; justify-content: center; gap: 40px; font-size: 1.25rem; color: var(--text-main); background: rgba(255,255,255,0.02); padding: 15px 30px; border-radius: 20px; border: 1px solid var(--glass-border); max-width: 800px; margin-left: auto; margin-right: auto; width: 100%;">
-        <span><i class="fa-solid fa-graduation-cap" style="color: var(--accent); margin-right: 8px;"></i> Presented by: <strong>[Your Name]</strong></span>
-        <span><i class="fa-solid fa-user-group" style="color: var(--primary); margin-right: 8px;"></i> <strong>Name 1</strong></span>
-        <span><i class="fa-solid fa-user-group" style="color: var(--primary); margin-right: 8px;"></i> <strong>Name 2</strong></span>
-      </div>
-    </div>
-
-    <!-- Slide 2: Physical House Topology -->
-    <div class="slide" data-index="1" data-speech="هنا نستعرض التوزيع الجغرافي للمصابيح في منزلي الذكي المكون من طابقين وممر مركزي. الترتيب الحقيقي للمصابيح في غرف الطوابق غير متماثل فيزيائياً، ولكن قمت بتطوير نظام ديناميكي يقوم بمزامنة الترتيب الهندسي للشبكة الافتراضية في التطبيق مع المنافذ الحقيقية على لوحة ESP32 لضمان تدفق الحركات بشكل منتظم.">
-      <div class="slide-header">
-        <div class="slide-category"><i class="fa-solid fa-sitemap"></i> Structural Layout</div>
-        <h2 class="slide-title">Physical House Topology</h2>
-      </div>
-      <div class="grid-2">
-        <!-- Digital Interactive Map -->
-        <div class="topology-house-map">
-          <!-- Row 1: Top floor rooms -->
-          <div class="topology-row">
-            <div class="topology-led-node yellow"><i class="fa-solid fa-lightbulb"></i>GP14</div>
-            <div class="topology-led-node blue"><i class="fa-solid fa-lightbulb"></i>GP25</div>
-            <div class="topology-led-node green"><i class="fa-solid fa-lightbulb"></i>GP27</div>
-          </div>
-          <!-- Row 2: Mid Hallway -->
-          <div class="topology-row">
-            <div class="topology-led-node green"><i class="fa-solid fa-lightbulb"></i>GP13</div>
-            <div class="topology-led-node center-empty"><i class="fa-solid fa-hotel"></i>ESP32 Center</div>
-            <div class="topology-led-node green"><i class="fa-solid fa-lightbulb"></i>GP33</div>
-          </div>
-          <!-- Row 3: Ground floor rooms -->
-          <div class="topology-row">
-            <div class="topology-led-node red"><i class="fa-solid fa-lightbulb"></i>GP26</div>
-            <div class="topology-led-node green"><i class="fa-solid fa-lightbulb"></i>GP12</div>
-            <div class="topology-led-node yellow"><i class="fa-solid fa-lightbulb"></i>GP32</div>
-          </div>
-        </div>
-
-        <!-- Screenshot Placeholder -->
-        <div class="screenshot-placeholder">
-          <i class="fa-regular fa-image"></i>
-          <p class="screenshot-desc">Screenshot of Wokwi Circuit Simulation</p>
-          <p class="screenshot-detail">Capture the fullscreen Wokwi canvas showing the 8 LEDs organized in a 3x3 grid around the ESP32 to represent the real-world topology.</p>
+        <div style="display: flex; gap: 20px; font-weight: 600; color: var(--text-main);">
+          <span>Abdellah El Hilaly</span>
+          <span style="color: rgba(15, 23, 42, 0.2);">|</span>
+          <span>Khalid FIFEL</span>
+          <span style="color: rgba(15, 23, 42, 0.2);">|</span>
+          <span>Mohammed LALAMI LAAROUSSI IDRISSI HASSANI</span>
         </div>
       </div>
     </div>
 
-    <!-- Slide 3: Hardware Elements & Items Used -->
-    <div class="slide" data-index="2" data-speech="هذه هي المكونات الإلكترونية التي استخدمتها لبناء المشروع: العقل المدبر هو متحكم ESP32 الذي يدعم البلوتوث، مستشعر الحركة PIR للكشف عن الحركة في الممرات، ومميز جداً مستشعر الضوء LDR للكشف عن مستوى الإضاءة المحيطة لتوفير الطاقة، بالإضافة إلى صافرة صوتية Buzzer للمؤشرات الصوتية ومصابيح LED لتوضيح حالة الغرف.">
-      <div class="slide-header">
-        <div class="slide-category"><i class="fa-solid fa-screwdriver-wrench"></i> Hardware Inventory</div>
-        <h2 class="slide-title">Electronic Items Used</h2>
+    <!-- Slide 2: Structural Topology (Empty for test) -->
+    <div class="slide" data-index="1" data-speech="Voici la topologie de notre maison intelligente. Les composants sont distribués sur deux étages.">
+      <div class="slide-category">
+        <i class="fa-solid fa-sitemap"></i> Structure et Topologie
       </div>
-      <div class="grid-4">
-        <div class="card">
-          <i class="fa-solid fa-microchip"></i>
-          <h3 class="card-title">ESP32 DevKit</h3>
-          <span class="card-value">Controller</span>
-        </div>
-        <div class="card">
-          <i class="fa-solid fa-person-walking"></i>
-          <h3 class="card-title">PIR Motion</h3>
-          <span class="card-value">Sensor</span>
-        </div>
-        <div class="card">
-          <i class="fa-solid fa-circle-half-stroke"></i>
-          <h3 class="card-title">LDR Resistor</h3>
-          <span class="card-value">Sensor</span>
-        </div>
-        <div class="card">
-          <i class="fa-solid fa-volume-high"></i>
-          <h3 class="card-title">Active Buzzer</h3>
-          <span class="card-value">Alert Sound</span>
-        </div>
+      <h2 class="slide-title">Topologie de la Maison</h2>
+      
+      <div class="placeholder-content-box">
+        <i class="fa-solid fa-house-chimney placeholder-icon"></i>
+        <div class="placeholder-text">Espace réservé : Topologie physique et schéma de câblage</div>
+        <div class="placeholder-text" style="font-size: 0.85rem;">[Ajoutez ici une capture d'écran du simulateur Wokwi montrant la disposition des 8 LEDs]</div>
       </div>
     </div>
 
-    <!-- Slide 4: Technologies Used -->
-    <div class="slide" data-index="3" data-speech="التقنيات المستخدمة في المشروع تنقسم لشقين: للبرمجيات قمت بتطوير تطبيق هاتف ذكي هجين باستخدام بيئة العمل Flutter ولغة البرمجة Dart، وللعتاد قمت بكتابة الكود البرمجي بلغة C++ باستخدام Arduino IDE. تم استخدام بروتوكول البلوتوث للربط الفوري وتخزين الإعدادات محلياً في ذاكرة التطبيق، واستعنت بمنصة Wokwi لمحاكاة الدائرة وتصميم التوصيلات الكهربائية.">
-      <div class="slide-header">
-        <div class="slide-category"><i class="fa-solid fa-code"></i> Technology Stack</div>
-        <h2 class="slide-title">Development Platforms</h2>
+    <!-- Slide 3: Components & Hardware (Empty for test) -->
+    <div class="slide" data-index="2" data-speech="Nous avons utilisé divers capteurs tels que le capteur de mouvement PIR et le capteur de lumière LDR.">
+      <div class="slide-category">
+        <i class="fa-solid fa-microchip"></i> Matériel & Composants
       </div>
-      <div class="grid-4">
-        <div class="card">
-          <i class="fa-brands fa-flutter" style="color: #4a90e2;"></i>
-          <h3 class="card-title">Flutter & Dart</h3>
-          <span class="card-value">App Platform</span>
-        </div>
-        <div class="card">
-          <i class="fa-solid fa-code-branch"></i>
-          <h3 class="card-title">C++ / Arduino</h3>
-          <span class="card-value">Firmware Code</span>
-        </div>
-        <div class="card">
-          <i class="fa-solid fa-share-nodes"></i>
-          <h3 class="card-title">Bluetooth SPP</h3>
-          <span class="card-value">Classic Channel</span>
-        </div>
-        <div class="card">
-          <i class="fa-solid fa-server"></i>
-          <h3 class="card-title">Local Storage</h3>
-          <span class="card-value">SharedPreferences</span>
-        </div>
+      <h2 class="slide-title">Composants Électroniques</h2>
+      
+      <div class="placeholder-content-box">
+        <i class="fa-solid fa-gears placeholder-icon" style="color: var(--secondary);"></i>
+        <div class="placeholder-text">Espace réservé : Spécifications des capteurs et actionneurs</div>
+        <div class="placeholder-text" style="font-size: 0.85rem;">[Ajoutez ici les icônes et caractéristiques de l'ESP32, PIR, LDR, et Buzzer]</div>
       </div>
     </div>
 
-    <!-- Slide 5: Control Modes & Features -->
-    <div class="slide" data-index="4" data-speech="تطبيق الهاتف يوفر ثلاثة أوضاع تشغيل ذكية: الأول هو التحكم اليدوي حيث يمكن تشغيل وإطفاء كل مصباح وتسميته وتغيير لونه التعبيري. الوضع الثاني هو التحكم التلقائي لحماية المنزل وتوفير الطاقة بالاعتماد على مستشعر الحركة والضوء. الوضع الثالث هو الحركات الضوئية التعبيرية حيث يضم التطبيق 9 حركات ضوئية متموجة وحديثة يتم إرسالها ومزامنتها فورياً.">
-      <div class="slide-header">
-        <div class="slide-category"><i class="fa-solid fa-toggle-on"></i> Core Functionality</div>
-        <h2 class="slide-title">Software Features & Modes</h2>
+    <!-- Slide 4: Technologies Used (Empty for test) -->
+    <div class="slide" data-index="3" data-speech="Le projet utilise Flutter pour l'application mobile et C++ pour le microcontrôleur ESP32.">
+      <div class="slide-category">
+        <i class="fa-solid fa-code"></i> Technologies
       </div>
-      <div class="grid-2">
-        <div class="grid-3" style="grid-template-columns: 1fr; gap: 20px;">
-          <div class="card" style="flex-direction: row; justify-content: flex-start; text-align: left; padding: 20px; gap: 20px;">
-            <i class="fa-solid fa-sliders" style="font-size: 2.5rem; margin: 0;"></i>
-            <div>
-              <h3 class="card-title" style="font-size: 1.2rem; margin: 0;">Manual Room Control</h3>
-              <span class="card-value" style="font-size: 0.9rem;">Rename & recolor LEDs individually</span>
-            </div>
-          </div>
-          <div class="card" style="flex-direction: row; justify-content: flex-start; text-align: left; padding: 20px; gap: 20px; border-color: var(--secondary);">
-            <i class="fa-solid fa-robot" style="font-size: 2.5rem; margin: 0;"></i>
-            <div>
-              <h3 class="card-title" style="font-size: 1.2rem; margin: 0;">Auto Sensor Mode</h3>
-              <span class="card-value" style="font-size: 0.9rem;">PIR Motion & LDR Light integration</span>
-            </div>
-          </div>
-          <div class="card" style="flex-direction: row; justify-content: flex-start; text-align: left; padding: 20px; gap: 20px;">
-            <i class="fa-solid fa-palette" style="font-size: 2.5rem; margin: 0;"></i>
-            <div>
-              <h3 class="card-title" style="font-size: 1.2rem; margin: 0;">Light Animations</h3>
-              <span class="card-value" style="font-size: 0.9rem;">9 multi-layer dynamic light waves</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="screenshot-placeholder">
-          <i class="fa-regular fa-image"></i>
-          <p class="screenshot-desc">App Mobile Interface Screen</p>
-          <p class="screenshot-detail">Add a screenshot of the main screen showing the responsive layout with Bluetooth connection button, color picker, and slider options.</p>
-        </div>
+      <h2 class="slide-title">Technologies Utilisées</h2>
+      
+      <div class="placeholder-content-box">
+        <i class="fa-solid fa-layer-group placeholder-icon" style="color: var(--accent);"></i>
+        <div class="placeholder-text">Espace réservé : Technologies de développement logicielles</div>
+        <div class="placeholder-text" style="font-size: 0.85rem;">[Ajoutez ici les technologies comme Flutter, Dart, C++, et Bluetooth Serial]</div>
       </div>
     </div>
 
-    <!-- Slide 6: The Dynamic Mapping Engine -->
-    <div class="slide" data-index="5" data-speech="هذا هو الجزء الهندسي الأبرز في مشروعي؛ لمنع حدوث مشاكل في مسار الحركات الضوئية بسبب اختلاف توزيع الأسلاك في المنزل الذكي، ابتكرت بروتوكول مزامنة مخصص يسمى MAP. يرسل التطبيق خريطة التوصيل الجغرافي للمتحكم فور الاتصال، ليقوم المتحكم بإعادة ترتيب مسارات الحركات برمجياً لتطابق المخطط الهندسي الفعلي تلقائياً.">
-      <div class="slide-header">
-        <div class="slide-category"><i class="fa-solid fa-arrows-spin"></i> Synchronization Engine</div>
-        <h2 class="slide-title">The Dynamic Mapping Protocol</h2>
+    <!-- Slide 5: Features & Modes (Empty for test) -->
+    <div class="slide" data-index="4" data-speech="Trois modes principaux sont programmés : le mode manuel, le mode automatique et le mode d'animations.">
+      <div class="slide-category">
+        <i class="fa-solid fa-sliders"></i> Fonctionnalités
       </div>
-      <div class="grid-2">
-        <div class="sync-diagram">
-          <div class="sync-block">
-            <i class="fa-solid fa-mobile-button"></i>
-            <h3 class="card-title" style="font-size: 1.1rem; margin-top: 5px;">App Configurations</h3>
-          </div>
-          <div class="sync-arrow"><i class="fa-solid fa-circle-arrow-right"></i></div>
-          <div class="sync-block" style="border-color: var(--accent);">
-            <i class="fa-solid fa-paper-plane" style="color: var(--accent);"></i>
-            <h3 class="card-title" style="font-size: 1.1rem; margin-top: 5px;">MAP Protocol</h3>
-          </div>
-          <div class="sync-arrow"><i class="fa-solid fa-circle-arrow-right"></i></div>
-          <div class="sync-block" style="border-color: var(--secondary);">
-            <i class="fa-solid fa-house-laptop" style="color: var(--secondary);"></i>
-            <h3 class="card-title" style="font-size: 1.1rem; margin-top: 5px;">Symmetrical Wave</h3>
-          </div>
-        </div>
+      <h2 class="slide-title">Modes de Fonctionnement</h2>
+      
+      <div class="placeholder-content-box">
+        <i class="fa-solid fa-gamepad placeholder-icon"></i>
+        <div class="placeholder-text">Espace réservé : Interface de l'application et fonctionnalités</div>
+        <div class="placeholder-text" style="font-size: 0.85rem;">[Ajoutez ici les captures d'écran de l'application et la description des modes de contrôle]</div>
+      </div>
+    </div>
 
-        <div class="screenshot-placeholder">
-          <i class="fa-regular fa-image"></i>
-          <p class="screenshot-desc">Animations Selection Tab Screen</p>
-          <p class="screenshot-detail">Capture a screenshot of the 3rd page of the app showing the white glassmorphic container with 3x3 layout of bulb icons, highlighting active and excluded states.</p>
-        </div>
+    <!-- Slide 6: Synchronization Engine (Empty for test) -->
+    <div class="slide" data-index="5" data-speech="Le protocole de synchronisation dynamique assure l'ordre correct des animations selon les branchements physiques.">
+      <div class="slide-category">
+        <i class="fa-solid fa-arrows-spin"></i> Algorithme & Synchronisation
+      </div>
+      <h2 class="slide-title">Moteur de Mappage Dynamique</h2>
+      
+      <div class="placeholder-content-box">
+        <i class="fa-solid fa-network-wired placeholder-icon" style="color: var(--primary);"></i>
+        <div class="placeholder-text">Espace réservé : Algorithme de synchronisation</div>
+        <div class="placeholder-text" style="font-size: 0.85rem;">[Ajoutez ici le diagramme explicatif du protocole de mappage dynamique MAP]</div>
       </div>
     </div>
 
   </div>
 
-  <!-- HUD Interface Controls -->
-  <div class="hud-controls">
-    <div class="hud-buttons">
-      <button class="hud-btn" id="prev-btn"><i class="fa-solid fa-arrow-left"></i></button>
-      <button class="hud-btn" id="next-btn"><i class="fa-solid fa-arrow-right"></i></button>
+  <!-- HUD Control Bar -->
+  <div class="navigation-overlay">
+    <div class="nav-buttons">
+      <button class="nav-btn" id="prev-slide-btn" title="Précédent"><i class="fa-solid fa-chevron-left"></i></button>
+      <button class="nav-btn" id="next-slide-btn" title="Suivant"><i class="fa-solid fa-chevron-right"></i></button>
     </div>
 
-    <!-- Interactive Speak Button -->
-    <button class="notes-trigger-btn" id="notes-btn">
-      <i class="fa-solid fa-file-invoice"></i> كلام الشرح للأستاذة (Notes)
+    <!-- Interactive Presenter Speech Button -->
+    <button class="presenter-notes-btn" id="notes-trigger">
+      <i class="fa-solid fa-comment-dots"></i> Notes de Présentation
     </button>
 
-    <div class="hud-progress" id="progress-dots">
-      <!-- Generated Dynamically -->
+    <div class="progress-bar-container" id="indicators-container">
+      <!-- Dots injected dynamically -->
     </div>
   </div>
 
   <!-- Presenter Notes Modal -->
-  <div class="notes-modal-overlay" id="notes-overlay">
+  <div class="notes-overlay" id="notes-overlay-bg">
     <div class="notes-modal">
       <div class="notes-header">
-        <h3 class="notes-title"><i class="fa-solid fa-comment-dots"></i> ماذا يجب أن تقول في هذه الشريحة؟</h3>
-        <button class="notes-close" id="notes-close-btn"><i class="fa-solid fa-xmark"></i></button>
+        <h3 class="notes-title"><i class="fa-solid fa-bullhorn"></i> Que dire à l'examinateur ?</h3>
+        <button class="notes-close" id="notes-close-x"><i class="fa-solid fa-xmark"></i></button>
       </div>
-      <div class="notes-content" id="notes-body">
-        <!-- Loaded dynamically based on slide -->
+      <div class="notes-content" id="notes-body-text">
+        <!-- Speech loaded dynamically -->
       </div>
     </div>
   </div>
 
   <script>
     const slides = document.querySelectorAll('.slide');
-    const prevBtn = document.getElementById('prev-btn');
-    const nextBtn = document.getElementById('next-btn');
-    const dotsContainer = document.getElementById('progress-dots');
+    const prevBtn = document.getElementById('prev-slide-btn');
+    const nextBtn = document.getElementById('next-slide-btn');
+    const indicatorsContainer = document.getElementById('indicators-container');
     
-    const notesBtn = document.getElementById('notes-btn');
-    const notesOverlay = document.getElementById('notes-overlay');
-    const notesCloseBtn = document.getElementById('notes-close-btn');
-    const notesBody = document.getElementById('notes-body');
-    const fsBtn = document.getElementById('fs-btn');
+    const notesTrigger = document.getElementById('notes-trigger');
+    const notesOverlay = document.getElementById('notes-overlay-bg');
+    const notesCloseX = document.getElementById('notes-close-x');
+    const notesBodyText = document.getElementById('notes-body-text');
 
-    let currentSlideIdx = 0;
+    let activeSlideIndex = 0;
 
-    // Create Navigation Dots
-    slides.forEach((_, idx) => {
+    // Build Progress dots dynamically
+    slides.forEach((_, index) => {
       const dot = document.createElement('div');
-      dot.classList.add('hud-dot');
-      if (idx === 0) dot.classList.add('active');
-      dot.addEventListener('click', () => goToSlide(idx));
-      dotsContainer.appendChild(dot);
+      dot.classList.add('progress-indicator');
+      if (index === 0) dot.classList.add('active');
+      dot.addEventListener('click', () => showSlide(index));
+      indicatorsContainer.appendChild(dot);
     });
 
-    const dots = document.querySelectorAll('.hud-dot');
+    const indicators = document.querySelectorAll('.progress-indicator');
 
-    function updateSlidePosition() {
+    function showSlide(index) {
+      if (index < 0 || index >= slides.length) return;
+      activeSlideIndex = index;
+      
       slides.forEach((slide, idx) => {
         slide.classList.remove('active', 'prev');
-        if (idx === currentSlideIdx) {
+        if (idx === activeSlideIndex) {
           slide.classList.add('active');
-        } else if (idx < currentSlideIdx) {
+        } else if (idx < activeSlideIndex) {
           slide.classList.add('prev');
         }
       });
 
-      dots.forEach((dot, idx) => {
-        dot.classList.toggle('active', idx === currentSlideIdx);
+      indicators.forEach((indicator, idx) => {
+        indicator.classList.toggle('active', idx === activeSlideIndex);
       });
     }
 
-    function goToSlide(index) {
-      if (index < 0 || index >= slides.length) return;
-      currentSlideIdx = index;
-      updateSlidePosition();
-    }
-
-    function nextSlide() {
-      if (currentSlideIdx < slides.length - 1) {
-        currentSlideIdx++;
+    function advanceSlide() {
+      if (activeSlideIndex < slides.length - 1) {
+        showSlide(activeSlideIndex + 1);
       } else {
-        currentSlideIdx = 0; // Loop back
+        showSlide(0); // wrap
       }
-      updateSlidePosition();
     }
 
-    function prevSlide() {
-      if (currentSlideIdx > 0) {
-        currentSlideIdx--;
+    function retreatSlide() {
+      if (activeSlideIndex > 0) {
+        showSlide(activeSlideIndex - 1);
       } else {
-        currentSlideIdx = slides.length - 1; // Loop back
+        showSlide(slides.length - 1); // wrap
       }
-      updateSlidePosition();
     }
 
-    // Event Listeners
-    nextBtn.addEventListener('click', nextSlide);
-    prevBtn.addEventListener('click', prevSlide);
-
-    // Keyboard Navigation
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'ArrowRight' || e.key === ' ') {
-        nextSlide();
-      } else if (e.key === 'ArrowLeft') {
-        prevSlide();
+    // Keyboard controls handler
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'ArrowRight' || event.key === ' ') {
+        advanceSlide();
+      } else if (event.key === 'ArrowLeft') {
+        retreatSlide();
       }
     });
 
-    // Notes Handler
-    notesBtn.addEventListener('click', () => {
-      const currentSlide = slides[currentSlideIdx];
-      const speechText = currentSlide.getAttribute('data-speech');
-      notesBody.innerHTML = speechText;
+    // Button controls click events
+    nextBtn.addEventListener('click', advanceSlide);
+    prevBtn.addEventListener('click', retreatSlide);
+
+    // Presenter speech notes window handler
+    notesTrigger.addEventListener('click', () => {
+      const activeSlide = slides[activeSlideIndex];
+      const speech = activeSlide.getAttribute('data-speech');
+      notesBodyText.innerHTML = speech;
       notesOverlay.classList.add('active');
     });
 
-    notesCloseBtn.addEventListener('click', () => {
+    notesCloseX.addEventListener('click', () => {
       notesOverlay.classList.remove('active');
     });
 
-    notesOverlay.addEventListener('click', (e) => {
-      if (e.target === notesOverlay) {
+    notesOverlay.addEventListener('click', (event) => {
+      if (event.target === notesOverlay) {
         notesOverlay.classList.remove('active');
       }
     });
 
-    // HTML5 Fullscreen API Handler
-    fsBtn.addEventListener('click', () => {
+    // Try to trigger fullscreen immediately on load
+    window.addEventListener('load', () => {
       if (!document.fullscreenElement) {
-        document.documentElement.requestFullscreen().then(() => {
-          fsBtn.innerHTML = '<i class="fa-solid fa-compress"></i> Exit Fullscreen';
-        }).catch((err) => {
-          console.error(`Error attempting to enable fullscreen: ${err.message}`);
-        });
-      } else {
-        document.exitFullscreen().then(() => {
-          fsBtn.innerHTML = '<i class="fa-solid fa-expand"></i> Fullscreen Mode';
+        document.documentElement.requestFullscreen().catch((err) => {
+          console.log("Auto-fullscreen on load blocked by browser policy. Waiting for user interaction.");
         });
       }
     });
 
-    document.addEventListener('fullscreenchange', () => {
+    // Automatic Fullscreen on First User Interaction (Click or Keydown)
+    function goFullscreenAutomatically() {
       if (!document.fullscreenElement) {
-        fsBtn.innerHTML = '<i class="fa-solid fa-expand"></i> Fullscreen Mode';
+        document.documentElement.requestFullscreen().catch((err) => {
+          console.log("Lecture du plein écran refusée ou en attente d'interaction: ", err.message);
+        });
       }
-    });
+      // Remove listeners so it only triggers once
+      document.removeEventListener('click', goFullscreenAutomatically);
+      document.removeEventListener('keydown', goFullscreenAutomatically);
+    }
+
+    document.addEventListener('click', goFullscreenAutomatically);
+    document.addEventListener('keydown', goFullscreenAutomatically);
   </script>
 </body>
 </html>
