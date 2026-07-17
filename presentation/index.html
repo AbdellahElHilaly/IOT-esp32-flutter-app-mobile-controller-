@@ -318,16 +318,27 @@
       </p>
 
       <!-- Footer for names (PPTX Style) -->
-      <div style="position: absolute; bottom: 40px; left: 8%; right: 8%; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(15, 23, 42, 0.08); padding-top: 25px; font-size: 0.95rem; color: var(--text-sub);">
-        <div style="display: flex; align-items: center; gap: 8px; font-weight: 700; color: var(--secondary);">
-          <i class="fa-solid fa-users"></i> Présenté par :
+      <div style="position: absolute; bottom: 40px; left: 8%; right: 8%; display: flex; justify-content: space-between; align-items: flex-end; border-top: 1px solid rgba(15, 23, 42, 0.08); padding-top: 25px; font-size: 0.95rem; text-align: left;">
+        <!-- Left: Presenters -->
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <div style="font-size: 0.8rem; letter-spacing: 1px; text-transform: uppercase; font-weight: 700; color: var(--secondary); display: flex; align-items: center; gap: 6px;">
+            <i class="fa-solid fa-users"></i> Présenté par :
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 4px; font-weight: 600; color: var(--text-main);">
+            <span>Abdellah El Hilaly</span>
+            <span>Khalid FIFEL</span>
+            <span>Mohammed LALAMI LAAROUSSI IDRISSI HASSANI</span>
+          </div>
         </div>
-        <div style="display: flex; gap: 20px; font-weight: 600; color: var(--text-main);">
-          <span>Abdellah El Hilaly</span>
-          <span style="color: rgba(15, 23, 42, 0.2);">|</span>
-          <span>Khalid FIFEL</span>
-          <span style="color: rgba(15, 23, 42, 0.2);">|</span>
-          <span>Mohammed LALAMI LAAROUSSI IDRISSI HASSANI</span>
+
+        <!-- Right: Supervisor -->
+        <div style="display: flex; flex-direction: column; gap: 8px; text-align: right; align-items: flex-end;">
+          <div style="font-size: 0.8rem; letter-spacing: 1px; text-transform: uppercase; font-weight: 700; color: var(--accent); display: flex; align-items: center; gap: 6px;">
+            <i class="fa-solid fa-chalkboard-user"></i> Encadré par :
+          </div>
+          <div style="font-weight: 600; color: var(--text-main);">
+            <span>Mme. Hanae Belmajdoub</span>
+          </div>
         </div>
       </div>
     </div>
