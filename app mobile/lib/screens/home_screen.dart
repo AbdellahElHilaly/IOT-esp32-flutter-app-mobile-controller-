@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
@@ -29,7 +31,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   int _ldrSemiThreshold = 2000;
   bool _buzzerSoundEnabled = true;
   int _selectedAnimationIndex = 0;
-  Set<int> _selectedAnimationRooms = {1, 2, 3, 4};
+  Set<int> _selectedAnimationLeds = {0, 1, 2, 3, 4, 5, 6, 7};
+  Timer? _animationSimulationTimer;
 
   BluetoothConnection? _connection;
   bool _isConnected = false;
@@ -40,17 +43,77 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   int _currentIndex = 0;
   int _activeSubmittedPageIndex = 0;
+  int _selectedGridConfigIndex = 0;
 
-  final List<Map<String, dynamic>> _ledConfig = [
-    {'name': 'LED 1', 'pin': '13', 'color': const Color(0xFFFFA500)},
-    {'name': 'LED 2', 'pin': '12', 'color': const Color(0xFFFFA500)},
-    {'name': 'LED 3', 'pin': '14', 'color': const Color(0xFF4AE183)},
-    {'name': 'LED 4', 'pin': '27', 'color': const Color(0xFF4AE183)},
-    {'name': 'LED 5', 'pin': '26', 'color': const Color(0xFF00B4D8)},
-    {'name': 'LED 6', 'pin': '25', 'color': const Color(0xFF00B4D8)},
-    {'name': 'LED 7', 'pin': '33', 'color': const Color(0xFFC8B6FF)},
-    {'name': 'LED 8', 'pin': '32', 'color': const Color(0xFFC8B6FF)},
+  final List<Map<String, dynamic>> _gridLedConfigs = [
+    {'name': 'LED 1', 'color': const Color(0xFFFFD54F), 'physicalIndex': 0},
+    {'name': 'LED 2', 'color': const Color(0xFF00B4D8), 'physicalIndex': 1},
+    {'name': 'LED 3', 'color': const Color(0xFF4AE183), 'physicalIndex': 2},
+    {'name': 'LED 4', 'color': const Color(0xFF4AE183), 'physicalIndex': 3},
+    {'name': 'LED 5', 'color': const Color(0xFFEF4444), 'physicalIndex': 4},
+    {'name': 'LED 6', 'color': const Color(0xFFFFD54F), 'physicalIndex': 5},
+    {'name': 'LED 7', 'color': const Color(0xFF4AE183), 'physicalIndex': 6},
+    {'name': 'LED 8', 'color': const Color(0xFFFFD54F), 'physicalIndex': 7},
   ];
+
+  final List<String> _physicalPins = const [
+    '13',
+    '12',
+    '14',
+    '27',
+    '26',
+    '25',
+    '33',
+    '32',
+  ];
+
+  final List<Color> _availableColors = const [
+    Color(0xFFFFD54F), // Amber/Yellow
+    Color(0xFF00B4D8), // Cyan/Blue
+    Color(0xFF4AE183), // Emerald/Green
+    Color(0xFFEF4444), // Red
+    Color(0xFF9B59B6), // Purple
+    Color(0xFFFFA500), // Orange
+    Color(0xFFE24A8D), // Pink/Magenta
+    Color(0xFF00677D), // Dark Teal
+  ];
+
+  Future<void> _loadSavedConfig() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final String? jsonStr = prefs.getString('grid_led_configs');
+      if (jsonStr != null) {
+        final List<dynamic> decoded = jsonDecode(jsonStr);
+        for (int i = 0; i < 8 && i < decoded.length; i++) {
+          final map = decoded[i] as Map<String, dynamic>;
+          setState(() {
+            _gridLedConfigs[i]['name'] = map['name'];
+            _gridLedConfigs[i]['color'] = Color(map['color'] as int);
+            _gridLedConfigs[i]['physicalIndex'] = map['physicalIndex'];
+          });
+        }
+      }
+    } catch (e) {
+      debugPrint('Error loading saved config: $e');
+    }
+  }
+
+  Future<void> _saveConfig() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final List<Map<String, dynamic>> toSave = _gridLedConfigs.map((config) {
+        return {
+          'name': config['name'],
+          'color': (config['color'] as Color).value,
+          'physicalIndex': config['physicalIndex'],
+        };
+      }).toList();
+      await prefs.setString('grid_led_configs', jsonEncode(toSave));
+      _sendMappingToEsp32(); // Sync custom mapping with ESP32 whenever saved
+    } catch (e) {
+      debugPrint('Error saving config: $e');
+    }
+  }
 
   @override
   void initState() {
@@ -59,13 +122,20 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       vsync: this,
       duration: const Duration(seconds: 1),
     )..repeat(reverse: true);
-    _requestAllPermissionsOnLaunch().then((_) {
-      _connectToBluetooth();
+    _loadSavedConfig().then((_) {
+      _requestAllPermissionsOnLaunch().then((_) {
+        _connectToBluetooth();
+      });
     });
+    _animationSimulationTimer = Timer.periodic(
+      const Duration(milliseconds: 50),
+      _runAnimationSimulation,
+    );
   }
 
   @override
   void dispose() {
+    _animationSimulationTimer?.cancel();
     _pulseController.dispose();
     _connection?.dispose();
     super.dispose();
@@ -105,7 +175,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         return;
       }
 
-      final List<BluetoothDevice> bondedDevices = await FlutterBluetoothSerial.instance.getBondedDevices();
+      final List<BluetoothDevice> bondedDevices = await FlutterBluetoothSerial
+          .instance
+          .getBondedDevices();
       BluetoothDevice? targetDevice;
       for (var device in bondedDevices) {
         if (device.name == 'esp32 abdellah') {
@@ -121,12 +193,16 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         return;
       }
 
-      final connection = await BluetoothConnection.toAddress(targetDevice.address);
+      final connection = await BluetoothConnection.toAddress(
+        targetDevice.address,
+      );
       setState(() {
         _connection = connection;
         _isConnected = true;
         _isConnecting = false;
       });
+
+      _sendMappingToEsp32(); // Sync custom mapping on Bluetooth connection
 
       connection.input!.listen(_onDataReceived).onDone(() {
         setState(() {
@@ -228,10 +304,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         _ldrSemiThreshold = semi;
         _buzzerSoundEnabled = buzzer;
         _selectedAnimationIndex = animIdx;
-        _selectedAnimationRooms = {};
-        for (int i = 0; i < 4; i++) {
+        _selectedAnimationLeds = {};
+        for (int i = 0; i < 8; i++) {
           if (((roomsMask >> i) & 1) == 1) {
-            _selectedAnimationRooms.add(i + 1);
+            _selectedAnimationLeds.add(i);
           }
         }
       });
@@ -244,13 +320,16 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     }
   }
 
+  void _sendMappingToEsp32() {
+    final mapping = List.generate(8, (i) => _gridLedConfigs[i]['physicalIndex'] as int);
+    _sendCommand('MAP:${mapping.join(',')}');
+  }
+
   Future<void> _checkConnectionAndShowAlert() async {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) => const Center(
-        child: CircularProgressIndicator(),
-      ),
+      builder: (context) => const Center(child: CircularProgressIndicator()),
     );
 
     if (!_isConnected) {
@@ -273,7 +352,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     _sendCommand('PING');
 
     try {
-      final success = await _pongCompleter!.future.timeout(const Duration(seconds: 2));
+      final success = await _pongCompleter!.future.timeout(
+        const Duration(seconds: 2),
+      );
       if (mounted) {
         Navigator.of(context).pop();
       }
@@ -318,10 +399,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             ),
           ],
         ),
-        content: Text(
-          message,
-          style: GoogleFonts.manrope(fontSize: 13),
-        ),
+        content: Text(message, style: GoogleFonts.manrope(fontSize: 13)),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
@@ -338,12 +416,13 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     );
   }
 
-  void _toggleLed(int index) {
+  void _toggleLed(int gridIndex) {
     if (_isHomeClosed || _activeSubmittedPageIndex == 1) return;
+    final physicalIndex = _gridLedConfigs[gridIndex]['physicalIndex'] as int;
     setState(() {
-      _ledStates[index] = !_ledStates[index];
+      _ledStates[physicalIndex] = !_ledStates[physicalIndex];
     });
-    _sendCommand('L${index + 1}:${_ledStates[index] ? 1 : 0}');
+    _sendCommand('L${physicalIndex + 1}:${_ledStates[physicalIndex] ? 1 : 0}');
   }
 
   void _toggleHomeMode() {
@@ -363,10 +442,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     final Uri url = Uri.parse('tel:212');
     try {
       if (await canLaunchUrl(url)) {
-        await launchUrl(
-          url,
-          mode: LaunchMode.externalApplication,
-        );
+        await launchUrl(url, mode: LaunchMode.externalApplication);
       }
     } catch (_) {}
   }
@@ -403,10 +479,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           Container(
             decoration: const BoxDecoration(
               gradient: LinearGradient(
-                colors: [
-                  Color(0xFFF1F2F6),
-                  Color(0xFFE2E8F0),
-                ],
+                colors: [Color(0xFFF1F2F6), Color(0xFFE2E8F0)],
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
               ),
@@ -437,13 +510,16 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           ),
           Positioned(
             bottom: 95,
+            right: 84,
+            child: _buildConfigFloatingButton(),
+          ),
+          Positioned(
+            bottom: 95,
             right: 24,
             child: _buildBluetoothFloatingButton(),
           ),
           if (_isAlarmTriggered)
-            Positioned.fill(
-              child: _buildDangerPage(textTheme),
-            ),
+            Positioned.fill(child: _buildDangerPage(textTheme)),
         ],
       ),
     );
@@ -465,9 +541,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   Widget _buildPage0(TextTheme textTheme) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        _buildHouseLayout(textTheme),
-      ],
+      children: [_buildHouseLayout(textTheme)],
     );
   }
 
@@ -519,10 +593,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           decoration: BoxDecoration(
             color: Colors.white.withValues(alpha: 0.65),
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-              color: Colors.white,
-              width: 1.5,
-            ),
+            border: Border.all(color: Colors.white, width: 1.5),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -533,7 +604,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                   fontSize: 10,
                   fontWeight: FontWeight.bold,
                   letterSpacing: 1.0,
-                  color: _autoMotionEnabled ? LuminaTheme.outlineColor : Colors.grey,
+                  color: _autoMotionEnabled
+                      ? LuminaTheme.outlineColor
+                      : Colors.grey,
                 ),
               ),
               const SizedBox(height: 4),
@@ -557,13 +630,22 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                       min: 5.0,
                       max: 60.0,
                       divisions: 11,
-                      activeColor: _autoMotionEnabled ? LuminaTheme.primaryColor : Colors.grey,
-                      inactiveColor: _autoMotionEnabled ? null : Colors.grey.withValues(alpha: 0.2),
-                      onChanged: _autoMotionEnabled ? _changeLightOnDuration : null,
+                      activeColor: _autoMotionEnabled
+                          ? LuminaTheme.primaryColor
+                          : Colors.grey,
+                      inactiveColor: _autoMotionEnabled
+                          ? null
+                          : Colors.grey.withValues(alpha: 0.2),
+                      onChanged: _autoMotionEnabled
+                          ? _changeLightOnDuration
+                          : null,
                     ),
                   ),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 6,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.white.withValues(alpha: 0.5),
                       borderRadius: BorderRadius.circular(10),
@@ -573,7 +655,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                       style: GoogleFonts.manrope(
                         fontWeight: FontWeight.bold,
                         fontSize: 12,
-                        color: _autoMotionEnabled ? LuminaTheme.primaryColor : Colors.grey,
+                        color: _autoMotionEnabled
+                            ? LuminaTheme.primaryColor
+                            : Colors.grey,
                       ),
                     ),
                   ),
@@ -588,16 +672,13 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           decoration: BoxDecoration(
             color: Colors.white.withValues(alpha: 0.65),
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-              color: Colors.white,
-              width: 1.5,
-            ),
+            border: Border.all(color: Colors.white, width: 1.5),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'DARK THRESHOLD (RUN 2 LEDs)',
+                'DARK THRESHOLD (RUN 8 LEDs)',
                 style: GoogleFonts.hankenGrotesk(
                   fontSize: 10,
                   fontWeight: FontWeight.bold,
@@ -607,7 +688,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               ),
               const SizedBox(height: 4),
               Text(
-                'Lux value split-point for Night (below this runs 2 LEDs)',
+                'Lux split-point for Night: below this, the system activates all 8 LEDs.',
                 style: GoogleFonts.manrope(
                   fontSize: 12,
                   color: LuminaTheme.outlineColor.withValues(alpha: 0.7),
@@ -627,7 +708,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     ),
                   ),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 6,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.white.withValues(alpha: 0.5),
                       borderRadius: BorderRadius.circular(10),
@@ -652,16 +736,13 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           decoration: BoxDecoration(
             color: Colors.white.withValues(alpha: 0.65),
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-              color: Colors.white,
-              width: 1.5,
-            ),
+            border: Border.all(color: Colors.white, width: 1.5),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'SEMI-DARK THRESHOLD (RUN 1 LED)',
+                'SEMI-DARK THRESHOLD (RUN 4 LEDs)',
                 style: GoogleFonts.hankenGrotesk(
                   fontSize: 10,
                   fontWeight: FontWeight.bold,
@@ -671,7 +752,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               ),
               const SizedBox(height: 4),
               Text(
-                'Lux value split-point for Day (above this turns OFF all LEDs)',
+                'Lux split-point for dim light: below this, the system runs 4 LEDs; above it, all LEDs switch off.',
                 style: GoogleFonts.manrope(
                   fontSize: 12,
                   color: LuminaTheme.outlineColor.withValues(alpha: 0.7),
@@ -691,7 +772,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     ),
                   ),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 6,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.white.withValues(alpha: 0.5),
                       borderRadius: BorderRadius.circular(10),
@@ -727,10 +811,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.65),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: Colors.white,
-          width: 1.5,
-        ),
+        border: Border.all(color: Colors.white, width: 1.5),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -740,7 +821,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: isEnabled ? activeColor.withValues(alpha: 0.1) : Colors.grey.withValues(alpha: 0.1),
+                  color: isEnabled
+                      ? activeColor.withValues(alpha: 0.1)
+                      : Colors.grey.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
@@ -809,10 +892,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             offset: const Offset(0, 8),
           ),
         ],
-        border: Border.all(
-          color: Colors.white,
-          width: 1.5,
-        ),
+        border: Border.all(color: Colors.white, width: 1.5),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -832,13 +912,19 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       onTap: () {
         setState(() {
           _currentIndex = index;
+          // Clear all LED states to prevent leftover animation states
+          for (int i = 0; i < 8; i++) {
+            _ledStates[i] = false;
+          }
         });
       },
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
         decoration: BoxDecoration(
-          color: isSelected ? LuminaTheme.primaryColor.withValues(alpha: 0.1) : Colors.transparent,
+          color: isSelected
+              ? LuminaTheme.primaryColor.withValues(alpha: 0.1)
+              : Colors.transparent,
           borderRadius: BorderRadius.circular(14),
         ),
         child: Row(
@@ -846,7 +932,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           children: [
             Icon(
               icon,
-              color: isSelected ? LuminaTheme.primaryColor : LuminaTheme.outlineColor,
+              color: isSelected
+                  ? LuminaTheme.primaryColor
+                  : LuminaTheme.outlineColor,
               size: 20,
             ),
             if (isSelected) ...[
@@ -870,8 +958,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     final statusColor = _isConnected
         ? const Color(0xFF4AE183)
         : _isConnecting
-            ? const Color(0xFF00B4D8)
-            : Colors.grey;
+        ? const Color(0xFF00B4D8)
+        : Colors.grey;
 
     return GestureDetector(
       onTap: _checkConnectionAndShowAlert,
@@ -889,10 +977,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               offset: const Offset(0, 4),
             ),
           ],
-          border: Border.all(
-            color: statusColor,
-            width: 1.5,
-          ),
+          border: Border.all(color: statusColor, width: 1.5),
         ),
         child: Center(
           child: _isConnecting
@@ -901,14 +986,12 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                   height: 16,
                   child: CircularProgressIndicator(
                     strokeWidth: 2.0,
-                    valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF00B4D8)),
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      Color(0xFF00B4D8),
+                    ),
                   ),
                 )
-              : Icon(
-                  Icons.bluetooth,
-                  color: statusColor,
-                  size: 24,
-                ),
+              : Icon(Icons.bluetooth, color: statusColor, size: 24),
         ),
       ),
     );
@@ -961,6 +1044,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                   } else {
                     _activeSubmittedPageIndex = -1;
                     _sendCommand('MODE:-1');
+                    for (int i = 0; i < 8; i++) {
+                      _ledStates[i] = false;
+                    }
                   }
                 });
               },
@@ -972,8 +1058,11 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 
   Widget _buildHouseLayout(TextTheme textTheme) {
-    return Column(
-      children: [
+    return Center(
+      child: Container(
+        constraints: const BoxConstraints(maxWidth: 400),
+        child: Column(
+          children: [
         ClipPath(
           clipper: RoofClipper(),
           child: Container(
@@ -981,10 +1070,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             width: double.infinity,
             decoration: const BoxDecoration(
               gradient: LinearGradient(
-                colors: [
-                  LuminaTheme.primaryColor,
-                  Color(0xFF00B4D8),
-                ],
+                colors: [LuminaTheme.primaryColor, Color(0xFF00B4D8)],
                 begin: Alignment.bottomLeft,
                 end: Alignment.topRight,
               ),
@@ -1013,51 +1099,48 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               bottomLeft: Radius.circular(24),
               bottomRight: Radius.circular(24),
             ),
-            border: Border.all(
-              color: Colors.white,
-              width: 1.5,
-            ),
+            border: Border.all(color: Colors.white, width: 1.5),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withValues(alpha: 0.05),
                 blurRadius: 20,
                 offset: const Offset(0, 8),
-              )
+              ),
             ],
           ),
           child: Column(
             children: [
               _buildFloorHeader('OPEN-PLAN LED LAYOUT'),
               const SizedBox(height: 8),
-              // Top row: LED3 — LED6 — LED4
+              // Top row: LED 1 — LED 2 — LED 3
               Row(
-                children: [
-                  Expanded(child: _buildLedTile(2, textTheme)),
-                  const SizedBox(width: 6),
-                  Expanded(child: _buildLedTile(5, textTheme)),
-                  const SizedBox(width: 6),
-                  Expanded(child: _buildLedTile(3, textTheme)),
-                ],
-              ),
-              const SizedBox(height: 6),
-              // Middle row: LED1 — HOME MODE — LED7
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Expanded(child: _buildLedTile(0, textTheme)),
                   const SizedBox(width: 6),
-                  _buildHomeModeWidget(textTheme),
+                  Expanded(child: _buildLedTile(1, textTheme)),
                   const SizedBox(width: 6),
-                  Expanded(child: _buildLedTile(6, textTheme)),
+                  Expanded(child: _buildLedTile(2, textTheme)),
                 ],
               ),
               const SizedBox(height: 6),
-              // Bottom row: LED5 — LED2 — LED8
+              // Middle row: LED 4 — HOME MODE — LED 5
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Expanded(child: _buildLedTile(3, textTheme)),
+                  const SizedBox(width: 6),
+                  _buildHomeModeWidget(textTheme),
+                  const SizedBox(width: 6),
+                  Expanded(child: _buildLedTile(4, textTheme)),
+                ],
+              ),
+              const SizedBox(height: 6),
+              // Bottom row: LED 6 — LED 7 — LED 8
               Row(
                 children: [
-                  Expanded(child: _buildLedTile(4, textTheme)),
+                  Expanded(child: _buildLedTile(5, textTheme)),
                   const SizedBox(width: 6),
-                  Expanded(child: _buildLedTile(1, textTheme)),
+                  Expanded(child: _buildLedTile(6, textTheme)),
                   const SizedBox(width: 6),
                   Expanded(child: _buildLedTile(7, textTheme)),
                 ],
@@ -1066,8 +1149,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           ),
         ),
       ],
-    );
-  }
+    ),
+  ),
+);
+}
 
   Widget _buildFloorHeader(String title) {
     return Align(
@@ -1084,13 +1169,12 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     );
   }
 
-
-
-
   Widget _buildLedTile(int index, TextTheme textTheme) {
-    final config = _ledConfig[index];
-    final isOn = _ledStates[index];
+    final config = _gridLedConfigs[index];
+    final physicalIndex = config['physicalIndex'] as int;
+    final isOn = _ledStates[physicalIndex];
     final color = config['color'] as Color;
+    final pin = _physicalPins[physicalIndex];
 
     return GestureDetector(
       onTap: () => _toggleLed(index),
@@ -1103,7 +1187,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               : (isOn ? Colors.white : Colors.white.withValues(alpha: 0.3)),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: !(_isHomeClosed || _activeSubmittedPageIndex == 1) && isOn ? color.withValues(alpha: 0.5) : Colors.transparent,
+            color: !(_isHomeClosed || _activeSubmittedPageIndex == 1) && isOn
+                ? color.withValues(alpha: 0.5)
+                : Colors.transparent,
             width: 1.5,
           ),
           boxShadow: !(_isHomeClosed || _activeSubmittedPageIndex == 1) && isOn
@@ -1112,15 +1198,19 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     color: color.withValues(alpha: 0.25),
                     blurRadius: 10,
                     offset: const Offset(0, 4),
-                  )
+                  ),
                 ]
               : null,
         ),
         child: Column(
           children: [
             Icon(
-              isOn && !(_isHomeClosed || _activeSubmittedPageIndex == 1) ? Icons.lightbulb : Icons.lightbulb_outline,
-              color: isOn && !(_isHomeClosed || _activeSubmittedPageIndex == 1) ? color : LuminaTheme.outlineColor,
+              isOn && !(_isHomeClosed || _activeSubmittedPageIndex == 1)
+                  ? Icons.lightbulb
+                  : Icons.lightbulb_outline,
+              color: isOn && !(_isHomeClosed || _activeSubmittedPageIndex == 1)
+                  ? color
+                  : LuminaTheme.outlineColor,
               size: 24,
             ),
             const SizedBox(height: 4),
@@ -1131,11 +1221,14 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               style: textTheme.labelSmall?.copyWith(
                 fontSize: 10,
                 fontWeight: FontWeight.bold,
-                color: isOn && !(_isHomeClosed || _activeSubmittedPageIndex == 1) ? LuminaTheme.onSurfaceColor : LuminaTheme.outlineColor,
+                color:
+                    isOn && !(_isHomeClosed || _activeSubmittedPageIndex == 1)
+                    ? LuminaTheme.onSurfaceColor
+                    : LuminaTheme.outlineColor,
               ),
             ),
             Text(
-              'GP${config['pin']}',
+              'GP$pin',
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: GoogleFonts.hankenGrotesk(
@@ -1151,53 +1244,50 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   Widget _buildHomeModeWidget(TextTheme textTheme) {
     final isRed = _activeSubmittedPageIndex == 1 || _isHomeClosed;
-    final themeColor = isRed ? const Color(0xFFEF4444) : const Color(0xFF4AE183);
-    final text2 = _activeSubmittedPageIndex == 1 ? 'PROTECTION' : (_isHomeClosed ? 'CLOSED' : 'OPEN');
-    final icon = _activeSubmittedPageIndex == 1 ? Icons.security : (_isHomeClosed ? Icons.lock : Icons.lock_open);
+    final themeColor = isRed
+        ? const Color(0xFFEF4444)
+        : const Color(0xFF4AE183);
+    final text2 = _activeSubmittedPageIndex == 1
+        ? 'PROTECTION'
+        : (_isHomeClosed ? 'CLOSED' : 'OPEN');
+    final icon = _activeSubmittedPageIndex == 1
+        ? Icons.security
+        : (_isHomeClosed ? Icons.lock : Icons.lock_open);
 
-    return GestureDetector(
-      onTap: _toggleHomeMode,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 250),
-        width: 70,
-        height: 100,
-        decoration: BoxDecoration(
-          color: themeColor.withValues(alpha: 0.1),
-          borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(12),
-            topRight: Radius.circular(12),
+    return Expanded(
+      child: GestureDetector(
+        onTap: _toggleHomeMode,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 250),
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          decoration: BoxDecoration(
+            color: themeColor.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: themeColor, width: 1.5),
           ),
-          border: Border.all(
-            color: themeColor,
-            width: 1.5,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, color: themeColor, size: 24),
+              const SizedBox(height: 4),
+              Text(
+                'HOME',
+                style: textTheme.labelSmall?.copyWith(
+                  fontSize: 9,
+                  fontWeight: FontWeight.bold,
+                  color: themeColor,
+                ),
+              ),
+              Text(
+                text2,
+                style: GoogleFonts.ibmPlexSansArabic(
+                  fontSize: 7.5,
+                  fontWeight: FontWeight.bold,
+                  color: themeColor,
+                ),
+              ),
+            ],
           ),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              icon,
-              color: themeColor,
-              size: 24,
-            ),
-            const SizedBox(height: 6),
-            Text(
-              'HOME',
-              style: textTheme.labelSmall?.copyWith(
-                fontSize: 9,
-                fontWeight: FontWeight.bold,
-                color: themeColor,
-              ),
-            ),
-            Text(
-              text2,
-              style: GoogleFonts.hankenGrotesk(
-                fontSize: 7.5,
-                fontWeight: FontWeight.bold,
-                color: themeColor,
-              ),
-            ),
-          ],
         ),
       ),
     );
@@ -1216,10 +1306,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.65),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: Colors.white,
-          width: 1.5,
-        ),
+        border: Border.all(color: Colors.white, width: 1.5),
       ),
       child: Row(
         children: [
@@ -1228,7 +1315,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               Icons.sensors,
               'Motion Sensor',
               _isMotionDetected ? 'Active' : 'No Motion',
-              _isMotionDetected ? const Color(0xFFEF4444) : LuminaTheme.outlineColor,
+              _isMotionDetected
+                  ? const Color(0xFFEF4444)
+                  : LuminaTheme.outlineColor,
             ),
           ),
           const SizedBox(width: 6),
@@ -1304,6 +1393,447 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         ],
       ),
     );
+  }
+
+
+
+  Widget _buildConfigFloatingButton() {
+    const statusColor = LuminaTheme.primaryColor;
+
+    return GestureDetector(
+      onTap: _showLedConfigDialog,
+      child: Container(
+        width: 50,
+        height: 50,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          shape: BoxShape.circle,
+          boxShadow: [
+            BoxShadow(
+              color: statusColor.withValues(alpha: 0.3),
+              blurRadius: 15,
+              spreadRadius: 2,
+              offset: const Offset(0, 4),
+            ),
+          ],
+          border: Border.all(color: statusColor, width: 1.5),
+        ),
+        child: const Center(
+          child: Icon(Icons.settings, color: statusColor, size: 24),
+        ),
+      ),
+    );
+  }
+
+  void _showLedConfigDialog() {
+    final List<TextEditingController> controllers = List.generate(8, (i) {
+      return TextEditingController(text: _gridLedConfigs[i]['name'] as String);
+    });
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setModalState) {
+            final double keyboardHeight =
+                MediaQuery.of(context).viewInsets.bottom;
+
+            void updatePhysicalMapping(int newPhysicalIndex) {
+              setState(() {
+                _gridLedConfigs[_selectedGridConfigIndex]['physicalIndex'] = newPhysicalIndex;
+              });
+
+              _saveConfig();
+              _sendCommand('ID:${newPhysicalIndex + 1}');
+
+              ScaffoldMessenger.of(context).hideCurrentSnackBar();
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  backgroundColor: Colors.transparent,
+                  elevation: 0,
+                  duration: const Duration(seconds: 2),
+                  content: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 10,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withValues(alpha: 0.85),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: LuminaTheme.primaryContainerColor.withValues(
+                          alpha: 0.5,
+                        ),
+                        width: 1.5,
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(
+                          Icons.volume_up,
+                          color: LuminaTheme.primaryContainerColor,
+                        ),
+                        const SizedBox(width: 10),
+                        Text(
+                          'Sent identify command to Physical LED ${newPhysicalIndex + 1}',
+                          style: GoogleFonts.ibmPlexSansArabic(
+                            color: Colors.white,
+                            fontSize: 13,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            }
+
+            return ClipRRect(
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(24),
+                topRight: Radius.circular(24),
+              ),
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+                child: Container(
+                  padding: EdgeInsets.fromLTRB(16, 20, 16, 20 + keyboardHeight),
+                  decoration: BoxDecoration(
+                    color: const Color(0xEC12161F), // Dark glassmorphic background
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(24),
+                      topRight: Radius.circular(24),
+                    ),
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.1),
+                      width: 1.5,
+                    ),
+                  ),
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      maxHeight: MediaQuery.of(context).size.height * 0.8,
+                    ),
+                    child: SingleChildScrollView(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Configure LED Mapping',
+                                style: GoogleFonts.ibmPlexSansArabic(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              IconButton(
+                                icon: const Icon(
+                                  Icons.close,
+                                  color: Colors.white,
+                                ),
+                                onPressed: () {
+                                  for (var c in controllers) {
+                                    c.dispose();
+                                  }
+                                  Navigator.pop(context);
+                                },
+                              ),
+                            ],
+                          ),
+                          const Divider(color: Colors.white24),
+                          const SizedBox(height: 8),
+                          // Horizontal selector of Grid Positions
+                          SizedBox(
+                            height: 55,
+                            child: ListView.builder(
+                              scrollDirection: Axis.horizontal,
+                              itemCount: 8,
+                              itemBuilder: (context, i) {
+                                final isSelected = i == _selectedGridConfigIndex;
+                                final config = _gridLedConfigs[i];
+                                final color = config['color'] as Color;
+                                return GestureDetector(
+                                  onTap: () {
+                                    setModalState(() {
+                                      _selectedGridConfigIndex = i;
+                                    });
+                                  },
+                                  child: AnimatedContainer(
+                                    duration: const Duration(milliseconds: 200),
+                                    margin: const EdgeInsets.symmetric(
+                                      horizontal: 6,
+                                      vertical: 4,
+                                    ),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 14,
+                                      vertical: 8,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: isSelected
+                                          ? color.withValues(alpha: 0.15)
+                                          : Colors.white.withValues(alpha: 0.05),
+                                      borderRadius: BorderRadius.circular(16),
+                                      border: Border.all(
+                                        color: isSelected ? color : Colors.white12,
+                                        width: 1.5,
+                                      ),
+                                      boxShadow: isSelected
+                                          ? [
+                                              BoxShadow(
+                                                color: color.withValues(
+                                                  alpha: 0.25,
+                                                ),
+                                                blurRadius: 8,
+                                                offset: const Offset(0, 2),
+                                              ),
+                                            ]
+                                          : [],
+                                    ),
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Icon(
+                                          Icons.lightbulb,
+                                          color: color,
+                                          size: 14,
+                                        ),
+                                        const SizedBox(width: 6),
+                                        Text(
+                                          config['name'] as String,
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: GoogleFonts.ibmPlexSansArabic(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.bold,
+                                            color: isSelected
+                                                ? Colors.white
+                                                : Colors.white60,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                          // Display Name Input
+                          Text(
+                            'Display Name',
+                            style: GoogleFonts.ibmPlexSansArabic(
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white70,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          TextField(
+                            controller: controllers[_selectedGridConfigIndex],
+                            decoration: InputDecoration(
+                              hintText: 'Enter LED name...',
+                              hintStyle: GoogleFonts.ibmPlexSansArabic(
+                                color: Colors.white38,
+                                fontSize: 13,
+                              ),
+                              isDense: true,
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 14,
+                                vertical: 12,
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide:
+                                    const BorderSide(color: Colors.white24),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: const BorderSide(
+                                  color: LuminaTheme.primaryContainerColor,
+                                ),
+                              ),
+                            ),
+                            style: GoogleFonts.ibmPlexSansArabic(
+                              fontSize: 13,
+                              color: Colors.white,
+                            ),
+                            onChanged: (val) {
+                              setState(() {
+                                _gridLedConfigs[_selectedGridConfigIndex]
+                                    ['name'] = val;
+                              });
+                              _saveConfig();
+                              setModalState(() {});
+                            },
+                          ),
+                          const SizedBox(height: 20),
+                          // Color Picker
+                          Text(
+                            'LED Color',
+                            style: GoogleFonts.ibmPlexSansArabic(
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white70,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          SizedBox(
+                            height: 38,
+                            child: ListView.builder(
+                              scrollDirection: Axis.horizontal,
+                              itemCount: _availableColors.length,
+                              itemBuilder: (context, colorIdx) {
+                                final c = _availableColors[colorIdx];
+                                final currentColor =
+                                    _gridLedConfigs[_selectedGridConfigIndex]
+                                        ['color'] as Color;
+                                final isSelected =
+                                    c.value == currentColor.value;
+                                return GestureDetector(
+                                  onTap: () {
+                                    setState(() {
+                                      _gridLedConfigs[_selectedGridConfigIndex]
+                                          ['color'] = c;
+                                    });
+                                    _saveConfig();
+                                    setModalState(() {});
+                                  },
+                                  child: Container(
+                                    width: 32,
+                                    height: 32,
+                                    margin: const EdgeInsets.symmetric(
+                                      horizontal: 4,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: c,
+                                      shape: BoxShape.circle,
+                                      border: Border.all(
+                                        color: isSelected
+                                            ? Colors.white
+                                            : Colors.transparent,
+                                        width: isSelected ? 2.5 : 1.5,
+                                      ),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: c.withValues(alpha: 0.3),
+                                          blurRadius: 4,
+                                          offset: const Offset(0, 2),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+                          // Physical LED Mappings
+                          Text(
+                            'Physical LED Mapping (GP Pin)',
+                            style: GoogleFonts.ibmPlexSansArabic(
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white70,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Wrap(
+                            spacing: 10,
+                            runSpacing: 10,
+                            children: List.generate(8, (i) {
+                              final isCurrentMapping =
+                                  _gridLedConfigs[_selectedGridConfigIndex]
+                                          ['physicalIndex'] ==
+                                      i;
+
+                              int mappedToGridIndex = -1;
+                              for (int g = 0; g < 8; g++) {
+                                if (_gridLedConfigs[g]['physicalIndex'] == i) {
+                                  mappedToGridIndex = g;
+                                  break;
+                                }
+                              }
+
+                              final pin = _physicalPins[i];
+
+                              return GestureDetector(
+                                onTap: () {
+                                  updatePhysicalMapping(i);
+                                  setModalState(() {});
+                                },
+                                child: AnimatedContainer(
+                                  duration: const Duration(milliseconds: 150),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 10,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: isCurrentMapping
+                                        ? LuminaTheme.primaryContainerColor
+                                            .withValues(alpha: 0.15)
+                                        : Colors.white.withValues(alpha: 0.05),
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(
+                                      color: isCurrentMapping
+                                          ? LuminaTheme.primaryContainerColor
+                                          : Colors.white12,
+                                      width: 1.5,
+                                    ),
+                                  ),
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text(
+                                        'GP$pin',
+                                        style: GoogleFonts.ibmPlexSansArabic(
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.bold,
+                                          color: isCurrentMapping
+                                              ? Colors.white
+                                              : Colors.white70,
+                                        ),
+                                      ),
+                                      if (mappedToGridIndex != -1 &&
+                                          mappedToGridIndex !=
+                                              _selectedGridConfigIndex)
+                                        Padding(
+                                          padding: const EdgeInsets.only(top: 4),
+                                          child: Text(
+                                            '(${_gridLedConfigs[mappedToGridIndex]['name']})',
+                                            style: GoogleFonts.ibmPlexSansArabic(
+                                              fontSize: 9,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.amber.withValues(
+                                                alpha: 0.7,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            }),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+    ).then((_) {
+      for (var c in controllers) {
+        c.dispose();
+      }
+    });
   }
 
   Widget _buildDangerPage(TextTheme textTheme) {
@@ -1392,21 +1922,229 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     );
   }
 
-  void _toggleAnimationRoom(int roomNum) {
+  void _toggleAnimationLed(int physicalIndex) {
     setState(() {
-      if (_selectedAnimationRooms.contains(roomNum)) {
-        if (_selectedAnimationRooms.length > 1) {
-          _selectedAnimationRooms.remove(roomNum);
+      if (_selectedAnimationLeds.contains(physicalIndex)) {
+        if (_selectedAnimationLeds.length > 1) {
+          _selectedAnimationLeds.remove(physicalIndex);
         }
       } else {
-        _selectedAnimationRooms.add(roomNum);
+        _selectedAnimationLeds.add(physicalIndex);
       }
     });
     int mask = 0;
-    for (int r in _selectedAnimationRooms) {
-      mask |= (1 << (r - 1));
+    for (int idx in _selectedAnimationLeds) {
+      mask |= (1 << idx);
     }
     _sendCommand('AR:$mask');
+  }
+
+  void _runAnimationSimulation(Timer timer) {
+    if (_currentIndex != 2 || _activeSubmittedPageIndex != 2) return;
+
+    final now = DateTime.now().millisecondsSinceEpoch;
+    final anim = _selectedAnimationIndex;
+    
+    int ledMask = 0;
+    for (int idx in _selectedAnimationLeds) {
+      ledMask |= (1 << idx);
+    }
+    if (ledMask == 0) {
+      setState(() {
+        for (int i = 0; i < 8; i++) {
+          _ledStates[i] = false;
+        }
+      });
+      return;
+    }
+
+    const List<int> gridWaveSequence = [0, 1, 2, 4, 7, 6, 5, 3];
+
+    if (anim == 0) {
+      final step = (now ~/ 150) % 8;
+      int activeStep = step;
+      for (int attempt = 0; attempt < 8; attempt++) {
+        final checkStep = (step + attempt) % 8;
+        final gridIdx = gridWaveSequence[checkStep];
+        final physIdx = _gridLedConfigs[gridIdx]['physicalIndex'] as int;
+        if (((ledMask >> physIdx) & 1) == 1) {
+          activeStep = checkStep;
+          break;
+        }
+      }
+      final activeGridIdx = gridWaveSequence[activeStep];
+      final activePhysIdx = _gridLedConfigs[activeGridIdx]['physicalIndex'] as int;
+      setState(() {
+        for (int i = 0; i < 8; i++) {
+          final physIdx = _gridLedConfigs[i]['physicalIndex'] as int;
+          _ledStates[physIdx] = (physIdx == activePhysIdx) && (((ledMask >> physIdx) & 1) == 1);
+        }
+      });
+    } else if (anim == 1) {
+      final toggle = (now ~/ 500) % 2 == 0;
+      setState(() {
+        for (int i = 0; i < 8; i++) {
+          final physIdx = _gridLedConfigs[i]['physicalIndex'] as int;
+          if (((ledMask >> physIdx) & 1) == 1) {
+            _ledStates[physIdx] = toggle;
+          } else {
+            _ledStates[physIdx] = false;
+          }
+        }
+      });
+    } else if (anim == 2) {
+      final toggle = (now ~/ 100) % 2 == 0;
+      setState(() {
+        for (int i = 0; i < 8; i++) {
+          final physIdx = _gridLedConfigs[i]['physicalIndex'] as int;
+          if (((ledMask >> physIdx) & 1) == 1) {
+            _ledStates[physIdx] = toggle;
+          } else {
+            _ledStates[physIdx] = false;
+          }
+        }
+      });
+    } else if (anim == 3) {
+      final toggle = (now ~/ 200) % 2 == 0;
+      setState(() {
+        for (int i = 0; i < 8; i++) {
+          final physIdx = _gridLedConfigs[i]['physicalIndex'] as int;
+          if (((ledMask >> physIdx) & 1) == 1) {
+            if (i % 2 == 0) {
+              _ledStates[physIdx] = toggle;
+            } else {
+              _ledStates[physIdx] = !toggle;
+            }
+          } else {
+            _ledStates[physIdx] = false;
+          }
+        }
+      });
+    } else if (anim == 4) {
+      final step = (now ~/ 150) % 8;
+      int offStep = step;
+      for (int attempt = 0; attempt < 8; attempt++) {
+        final checkStep = (step + attempt) % 8;
+        final gridIdx = gridWaveSequence[checkStep];
+        final physIdx = _gridLedConfigs[gridIdx]['physicalIndex'] as int;
+        if (((ledMask >> physIdx) & 1) == 1) {
+          offStep = checkStep;
+          break;
+        }
+      }
+      final offGridIdx = gridWaveSequence[offStep];
+      final offPhysIdx = _gridLedConfigs[offGridIdx]['physicalIndex'] as int;
+      setState(() {
+        for (int i = 0; i < 8; i++) {
+          final physIdx = _gridLedConfigs[i]['physicalIndex'] as int;
+          if (((ledMask >> physIdx) & 1) == 1) {
+            _ledStates[physIdx] = (physIdx != offPhysIdx);
+          } else {
+            _ledStates[physIdx] = false;
+          }
+        }
+      });
+    } else if (anim == 5) {
+      final step = (now ~/ 150) % 6;
+      setState(() {
+        for (int i = 0; i < 8; i++) {
+          final physIdx = _gridLedConfigs[i]['physicalIndex'] as int;
+          _ledStates[physIdx] = false;
+        }
+        if (step == 0) {
+          final phys = _gridLedConfigs[3]['physicalIndex'] as int;
+          if (((ledMask >> phys) & 1) == 1) _ledStates[phys] = true;
+        } else if (step == 1) {
+          final phys0 = _gridLedConfigs[0]['physicalIndex'] as int;
+          final phys5 = _gridLedConfigs[5]['physicalIndex'] as int;
+          if (((ledMask >> phys0) & 1) == 1) _ledStates[phys0] = true;
+          if (((ledMask >> phys5) & 1) == 1) _ledStates[phys5] = true;
+        } else if (step == 2) {
+          final phys1 = _gridLedConfigs[1]['physicalIndex'] as int;
+          final phys6 = _gridLedConfigs[6]['physicalIndex'] as int;
+          if (((ledMask >> phys1) & 1) == 1) _ledStates[phys1] = true;
+          if (((ledMask >> phys6) & 1) == 1) _ledStates[phys6] = true;
+        } else if (step == 3) {
+          final phys2 = _gridLedConfigs[2]['physicalIndex'] as int;
+          final phys7 = _gridLedConfigs[7]['physicalIndex'] as int;
+          if (((ledMask >> phys2) & 1) == 1) _ledStates[phys2] = true;
+          if (((ledMask >> phys7) & 1) == 1) _ledStates[phys7] = true;
+        } else if (step == 4) {
+          final phys4 = _gridLedConfigs[4]['physicalIndex'] as int;
+          if (((ledMask >> phys4) & 1) == 1) _ledStates[phys4] = true;
+        }
+      });
+    } else if (anim == 6) {
+      final step = (now ~/ 250) % 4;
+      setState(() {
+        for (int i = 0; i < 8; i++) {
+          final physIdx = _gridLedConfigs[i]['physicalIndex'] as int;
+          _ledStates[physIdx] = false;
+        }
+        if (step == 0) {
+          final p3 = _gridLedConfigs[3]['physicalIndex'] as int;
+          final p4 = _gridLedConfigs[4]['physicalIndex'] as int;
+          if (((ledMask >> p3) & 1) == 1) _ledStates[p3] = true;
+          if (((ledMask >> p4) & 1) == 1) _ledStates[p4] = true;
+        } else if (step == 1) {
+          final p0 = _gridLedConfigs[0]['physicalIndex'] as int;
+          final p2 = _gridLedConfigs[2]['physicalIndex'] as int;
+          final p5 = _gridLedConfigs[5]['physicalIndex'] as int;
+          final p7 = _gridLedConfigs[7]['physicalIndex'] as int;
+          if (((ledMask >> p0) & 1) == 1) _ledStates[p0] = true;
+          if (((ledMask >> p2) & 1) == 1) _ledStates[p2] = true;
+          if (((ledMask >> p5) & 1) == 1) _ledStates[p5] = true;
+          if (((ledMask >> p7) & 1) == 1) _ledStates[p7] = true;
+        } else if (step == 2) {
+          final p1 = _gridLedConfigs[1]['physicalIndex'] as int;
+          final p6 = _gridLedConfigs[6]['physicalIndex'] as int;
+          if (((ledMask >> p1) & 1) == 1) _ledStates[p1] = true;
+          if (((ledMask >> p6) & 1) == 1) _ledStates[p6] = true;
+        }
+      });
+    } else if (anim == 7) {
+      final step = (now ~/ 200) % 4;
+      setState(() {
+        for (int i = 0; i < 8; i++) {
+          final physIdx = _gridLedConfigs[i]['physicalIndex'] as int;
+          _ledStates[physIdx] = false;
+        }
+        if (step == 0) {
+          final p0 = _gridLedConfigs[0]['physicalIndex'] as int;
+          final p7 = _gridLedConfigs[7]['physicalIndex'] as int;
+          if (((ledMask >> p0) & 1) == 1) _ledStates[p0] = true;
+          if (((ledMask >> p7) & 1) == 1) _ledStates[p7] = true;
+        } else if (step == 1) {
+          final p2 = _gridLedConfigs[2]['physicalIndex'] as int;
+          final p5 = _gridLedConfigs[5]['physicalIndex'] as int;
+          if (((ledMask >> p2) & 1) == 1) _ledStates[p2] = true;
+          if (((ledMask >> p5) & 1) == 1) _ledStates[p5] = true;
+        } else if (step == 2) {
+          final p1 = _gridLedConfigs[1]['physicalIndex'] as int;
+          final p6 = _gridLedConfigs[6]['physicalIndex'] as int;
+          final p3 = _gridLedConfigs[3]['physicalIndex'] as int;
+          final p4 = _gridLedConfigs[4]['physicalIndex'] as int;
+          if (((ledMask >> p1) & 1) == 1) _ledStates[p1] = true;
+          if (((ledMask >> p6) & 1) == 1) _ledStates[p6] = true;
+          if (((ledMask >> p3) & 1) == 1) _ledStates[p3] = true;
+          if (((ledMask >> p4) & 1) == 1) _ledStates[p4] = true;
+        }
+      });
+    } else if (anim == 8) {
+      final step = (now ~/ 150) % 8;
+      setState(() {
+        for (int i = 0; i < 8; i++) {
+          final physIdx = _gridLedConfigs[i]['physicalIndex'] as int;
+          _ledStates[physIdx] = false;
+        }
+        final gridIdx1 = gridWaveSequence[step];
+        final gridIdx2 = gridWaveSequence[(step + 4) % 8];
+        final p1 = _gridLedConfigs[gridIdx1]['physicalIndex'] as int;
+        final p2 = _gridLedConfigs[gridIdx2]['physicalIndex'] as int;
+        if (((ledMask >> p1) & 1) == 1) _ledStates[p1] = true;
+        if (((ledMask >> p2) & 1) == 1) _ledStates[p2] = true;
+      });
+    }
   }
 
   Widget _buildPage2(TextTheme textTheme) {
@@ -1428,10 +2166,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.65),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: Colors.white,
-          width: 1.5,
-        ),
+        border: Border.all(color: Colors.white, width: 1.5),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1441,7 +2176,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               children: [
                 Icon(
                   _buzzerSoundEnabled ? Icons.volume_up : Icons.volume_off,
-                  color: _buzzerSoundEnabled ? const Color(0xFF4AE183) : LuminaTheme.outlineColor,
+                  color: _buzzerSoundEnabled
+                      ? const Color(0xFF4AE183)
+                      : LuminaTheme.outlineColor,
                   size: 22,
                 ),
                 const SizedBox(width: 12),
@@ -1458,7 +2195,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                         ),
                       ),
                       Text(
-                        _buzzerSoundEnabled ? 'Buzzer beep sounds are active' : 'Buzzer beep sounds are muted',
+                        _buzzerSoundEnabled
+                            ? 'Buzzer beep sounds are active'
+                            : 'Buzzer beep sounds are muted',
                         style: GoogleFonts.manrope(
                           fontSize: 10,
                           color: LuminaTheme.outlineColor,
@@ -1514,6 +2253,30 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         'icon': Icons.rotate_right_rounded,
         'color': const Color(0xFF9B59B6),
       },
+      {
+        'title': 'Parallel Split',
+        'description': 'Wave split from center-left to right',
+        'icon': Icons.splitscreen_rounded,
+        'color': const Color(0xFFE67E22),
+      },
+      {
+        'title': 'Radial Ripple',
+        'description': 'Expanding ripple from inside out',
+        'icon': Icons.blur_circular_rounded,
+        'color': const Color(0xFF1ABC9C),
+      },
+      {
+        'title': 'Symmetric Cross',
+        'description': 'Diagonal and cross pulse sequence',
+        'icon': Icons.add_circle_outline_rounded,
+        'color': const Color(0xFFE74C3C),
+      },
+      {
+        'title': 'Double Spiral',
+        'description': 'Dual-point spiral chase wave',
+        'icon': Icons.all_inclusive_rounded,
+        'color': const Color(0xFF2ECC71),
+      },
     ];
 
     return Column(
@@ -1564,54 +2327,56 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                               color: anim['color'].withValues(alpha: 0.15),
                               blurRadius: 10,
                               offset: const Offset(0, 4),
-                            )
+                            ),
                           ]
                         : [],
                   ),
                   child: Column(
-                     crossAxisAlignment: CrossAxisAlignment.start,
-                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                     children: [
-                       Row(
-                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                         children: [
-                           Icon(
-                             anim['icon'],
-                             color: isSelected ? anim['color'] : LuminaTheme.outlineColor,
-                             size: 32,
-                           ),
-                           if (isSelected)
-                             Icon(
-                               Icons.check_circle_rounded,
-                               color: anim['color'],
-                               size: 20,
-                             ),
-                         ],
-                       ),
-                       Column(
-                         crossAxisAlignment: CrossAxisAlignment.start,
-                         children: [
-                           Text(
-                             anim['title'],
-                             style: GoogleFonts.manrope(
-                               fontSize: 14,
-                               fontWeight: FontWeight.bold,
-                               color: LuminaTheme.onSurfaceColor,
-                             ),
-                           ),
-                           const SizedBox(height: 4),
-                           Text(
-                             anim['description'],
-                             maxLines: 2,
-                             overflow: TextOverflow.ellipsis,
-                             style: GoogleFonts.manrope(
-                               fontSize: 10,
-                               color: LuminaTheme.outlineColor,
-                             ),
-                           ),
-                         ],
-                       ),
-                     ],
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Icon(
+                            anim['icon'],
+                            color: isSelected
+                                ? anim['color']
+                                : LuminaTheme.outlineColor,
+                            size: 32,
+                          ),
+                          if (isSelected)
+                            Icon(
+                              Icons.check_circle_rounded,
+                              color: anim['color'],
+                              size: 20,
+                            ),
+                        ],
+                      ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            anim['title'],
+                            style: GoogleFonts.manrope(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: LuminaTheme.onSurfaceColor,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            anim['description'],
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: GoogleFonts.manrope(
+                              fontSize: 10,
+                              color: LuminaTheme.outlineColor,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
                 ),
               );
@@ -1623,17 +2388,11 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 
   Widget _buildAnimationRoomsSelector(TextTheme textTheme) {
-    final rooms = [
-      {'id': 1, 'name': 'Zone 1', 'floor': 'LEDs 1 & 2 (Left & Bottom)'},
-      {'id': 2, 'name': 'Zone 2', 'floor': 'LEDs 3 & 4 (Top Corners)'},
-      {'id': 3, 'name': 'Zone 3', 'floor': 'LEDs 5 & 6 (Bottom-L & Top)'},
-      {'id': 4, 'name': 'Zone 4', 'floor': 'LEDs 7 & 8 (Right & Bottom-R)'},
-    ];
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'TARGET ZONES',
+          'SELECT ACTIVE LEDS',
           style: textTheme.labelSmall?.copyWith(
             fontSize: 11,
             letterSpacing: 1.5,
@@ -1642,83 +2401,78 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           ),
         ),
         const SizedBox(height: 12),
-        GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            crossAxisSpacing: 12,
-            mainAxisSpacing: 12,
-            childAspectRatio: 1.6,
+        Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.65),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: Colors.white, width: 1.5),
           ),
-          itemCount: rooms.length,
-          itemBuilder: (context, index) {
-            final room = rooms[index];
-            final roomId = room['id'] as int;
-            final isSelected = _selectedAnimationRooms.contains(roomId);
-            return GestureDetector(
-              onTap: () => _toggleAnimationRoom(roomId),
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: isSelected
-                      ? LuminaTheme.primaryColor.withValues(alpha: 0.1)
-                      : Colors.white.withValues(alpha: 0.65),
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: isSelected ? LuminaTheme.primaryColor : Colors.white,
-                    width: 1.5,
-                  ),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Icon(
-                          Icons.crop_free_rounded,
-                          color: isSelected ? LuminaTheme.primaryColor : LuminaTheme.outlineColor,
-                          size: 20,
-                        ),
-                        Checkbox(
-                          value: isSelected,
-                          activeColor: LuminaTheme.primaryColor,
-                          onChanged: (_) => _toggleAnimationRoom(roomId),
-                          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                          visualDensity: VisualDensity.compact,
-                        ),
-                      ],
-                    ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          room['name'] as String,
-                          style: GoogleFonts.manrope(
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                            color: LuminaTheme.onSurfaceColor,
-                          ),
-                        ),
-                        Text(
-                          room['floor'] as String,
-                          style: GoogleFonts.manrope(
-                            fontSize: 8,
-                            color: LuminaTheme.outlineColor,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  Expanded(child: _buildMiniLedTile(0, textTheme)),
+                  const SizedBox(width: 6),
+                  Expanded(child: _buildMiniLedTile(1, textTheme)),
+                  const SizedBox(width: 6),
+                  Expanded(child: _buildMiniLedTile(2, textTheme)),
+                ],
               ),
-            );
-          },
+              const SizedBox(height: 6),
+              Row(
+                children: [
+                  Expanded(child: _buildMiniLedTile(3, textTheme)),
+                  const SizedBox(width: 6),
+                  Expanded(
+                    child: SizedBox(
+                      height: 58,
+                      child: const Center(
+                        child: Icon(Icons.home_outlined, color: Colors.grey, size: 30),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 6),
+                  Expanded(child: _buildMiniLedTile(4, textTheme)),
+                ],
+              ),
+              const SizedBox(height: 6),
+              Row(
+                children: [
+                  Expanded(child: _buildMiniLedTile(5, textTheme)),
+                  const SizedBox(width: 6),
+                  Expanded(child: _buildMiniLedTile(6, textTheme)),
+                  const SizedBox(width: 6),
+                  Expanded(child: _buildMiniLedTile(7, textTheme)),
+                ],
+              ),
+            ],
+          ),
         ),
       ],
+    );
+  }
+
+  Widget _buildMiniLedTile(int index, TextTheme textTheme) {
+    final config = _gridLedConfigs[index];
+    final physicalIndex = config['physicalIndex'] as int;
+    final isIncluded = _selectedAnimationLeds.contains(physicalIndex);
+    final isOn = _ledStates[physicalIndex];
+    final color = config['color'] as Color;
+
+    return GestureDetector(
+      onTap: () => _toggleAnimationLed(physicalIndex),
+      behavior: HitTestBehavior.opaque,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        child: Icon(
+          isOn ? Icons.lightbulb : Icons.lightbulb_outline,
+          color: isIncluded
+              ? (isOn ? color : color.withValues(alpha: 0.4))
+              : Colors.grey,
+          size: 34,
+        ),
+      ),
     );
   }
 }
